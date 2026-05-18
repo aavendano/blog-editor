@@ -1,0 +1,8 @@
+.article-editor-content .product-embed,
+.article-editor-content .collection-embed {
+  margin: 1rem 0;
+}
+
+.article-editor-content .bn-editor {
+  min-height: 320px;
+}
