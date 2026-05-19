@@ -1,9 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
-import { BlockNoteViewRaw, useCreateBlockNote } from "@blocknote/react";
-import "@blocknote/react/style.css";
+import { BlockNoteView } from "@blocknote/ariakit";
+import "@blocknote/ariakit/style.css";
+import { useCreateBlockNote, SuggestionMenuController } from "@blocknote/react";
 import { blocknoteSchema } from "../../lib/blocknote/schema";
+import { getArticleSlashMenuItems } from "../../lib/blocknote/slash-menu-items";
 import { patchProseMirrorRenderSpec } from "../../lib/blocknote/patch-render-spec";
 
 patchProseMirrorRenderSpec();
@@ -13,11 +15,28 @@ patchProseMirrorRenderSpec();
  *   initialDoc: unknown;
  *   onChange: (doc: unknown) => void;
  *   editorRef?: React.MutableRefObject<import("@blocknote/core").BlockNoteEditor | null>;
+ *   onOpenProductPicker?: () => void;
+ *   onOpenCollectionPicker?: () => void;
  * }} props
  */
-export function BlogEditor({ initialDoc, onChange, editorRef }) {
+export function BlogEditor({
+  initialDoc,
+  onChange,
+  editorRef,
+  onOpenProductPicker,
+  onOpenCollectionPicker,
+}) {
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+
+  const pickerCallbacksRef = useRef({
+    onOpenProductPicker,
+    onOpenCollectionPicker,
+  });
+  pickerCallbacksRef.current = {
+    onOpenProductPicker,
+    onOpenCollectionPicker,
+  };
 
   const editor = useCreateBlockNote({
     schema: blocknoteSchema,
@@ -37,9 +56,20 @@ export function BlogEditor({ initialDoc, onChange, editorRef }) {
     return () => unsubscribe();
   }, [editor]);
 
+  const getSlashMenuItems = useCallback(
+    async (query) =>
+      getArticleSlashMenuItems(editor, pickerCallbacksRef.current, query),
+    [editor],
+  );
+
   return (
     <div className="article-editor-content">
-      <BlockNoteViewRaw editor={editor} />
+      <BlockNoteView editor={editor} slashMenu={false} theme="light">
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={getSlashMenuItems}
+        />
+      </BlockNoteView>
     </div>
   );
 }

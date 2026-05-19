@@ -282,21 +282,18 @@ function EditorPage() {
         </s-banner>
       ) : null}
 
-      <s-section padding="none">
+      <s-section padding="base">
         <s-stack direction="block" gap="base">
-          <label>
-            Título
-            <input
-              type="text"
+          <s-text-field
+            label="Título"
               value={title}
               onChange={(e) => {
                 const next = e.target.value;
                 setTitle(next);
                 scheduleSave(doc, next);
               }}
-              style={{ width: "100%", padding: "8px" }}
-            />
-          </label>
+             
+            ></s-text-field>
           <s-paragraph>
             Blog: {blogTitle}
             {draft.shopifyArticleGid ? (
@@ -325,15 +322,22 @@ function EditorPage() {
             >
               Vista previa
             </s-button>
-            <s-button variant="tertiary" onClick={() => setPickerKind("product")}>
-              + Producto
+
+            <s-button 
+            variant="tertiary"
+            icon="product-add"
+            onClick={() => setPickerKind("product")}>
+              Producto
             </s-button>
+
             <s-button
               variant="tertiary"
+              icon="collection-reference"
               onClick={() => setPickerKind("collection")}
             >
-              + Colección
+              Colección
             </s-button>
+
           </s-stack>
 
           {tab === "edit" ? (
@@ -341,6 +345,8 @@ function EditorPage() {
               initialDoc={draft.blocknoteDoc}
               onChange={handleDocChange}
               editorRef={editorRef}
+              onOpenProductPicker={() => setPickerKind("product")}
+              onOpenCollectionPicker={() => setPickerKind("collection")}
             />
           ) : (
             <div

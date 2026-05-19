@@ -6,7 +6,7 @@ App embebida en el Shopify Admin para editar artículos de blog con [BlockNote](
 
 - React Router 7 + `@shopify/shopify-app-react-router`
 - Polaris web components (shell de la app)
-- BlockNote (editor) + Bulma scoped (contenido del artículo en editor/preview)
+- BlockNote + Ariakit (UI del editor) + Bulma scoped (contenido del artículo en editor/preview)
 - Prisma + PostgreSQL
 - Admin GraphQL (`read_content`, `write_content`, `read_products`)
 

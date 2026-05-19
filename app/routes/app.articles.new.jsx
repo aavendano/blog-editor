@@ -40,27 +40,26 @@ export default function NewArticle() {
   const { blogs } = useLoaderData();
 
   return (
-    <s-page heading="Nuevo artículo">
-      <s-section>
+    <s-page heading="Nuevo artículo" inlineSize="large">
+      <s-section padding="base">
         <Form method="post">
-          <s-stack direction="block" gap="base">
-            <label>
-              Título
-              <input type="text" name="title" defaultValue="Sin título" />
-            </label>
-            <label>
-              Blog
-              <select name="blogGid" required defaultValue="">
-                <option value="" disabled>
-                  Seleccionar blog…
-                </option>
-                {blogs.map((blog) => (
-                  <option key={blog.id} value={blog.id}>
-                    {blog.title}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <s-stack direction="block" gap="base" padding="base">
+
+          <s-text-field
+  label="Título"
+  value="Sin título"
+  placeholder="Título del artículo"
+></s-text-field>
+
+
+<s-choice-list label="Blog" name="blogGid" required>
+  {blogs.map((blog) => (
+    <s-choice key={blog.id} value={blog.id}>
+      {blog.title}
+    </s-choice>
+  ))}
+</s-choice-list>
+
             <s-button type="submit" variant="primary">
               Crear borrador
             </s-button>
