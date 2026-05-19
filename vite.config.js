@@ -36,6 +36,13 @@ if (host === "localhost") {
 }
 
 export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ["import"],
+      },
+    },
+  },
   server: {
     allowedHosts: [host],
     cors: {
@@ -45,7 +52,7 @@ export default defineConfig({
     hmr: hmrConfig,
     fs: {
       // See https://vitejs.dev/config/server-options.html#server-fs-allow for more information
-      allow: ["app", "node_modules"],
+      allow: ["app", "node_modules", "src"],
     },
   },
   plugins: [reactRouter(), tsconfigPaths()],
@@ -62,5 +69,16 @@ export default defineConfig({
       "prosemirror-view",
       "prosemirror-transform",
     ],
+  },
+  ssr: {
+    noExternal: ["@blocknote/server-util"],
+    resolve: {
+      dedupe: [
+        "prosemirror-model",
+        "prosemirror-state",
+        "prosemirror-view",
+        "prosemirror-transform",
+      ],
+    },
   },
 });

@@ -6,7 +6,7 @@ App embebida en el Shopify Admin para editar artículos de blog con [BlockNote](
 
 - React Router 7 + `@shopify/shopify-app-react-router`
 - Polaris web components (shell de la app)
-- BlockNote + Ariakit (UI del editor) + Bulma scoped (contenido del artículo en editor/preview)
+- BlockNote + Ariakit (UI del editor) + Bulma del theme (compilado en editor/preview)
 - Prisma + PostgreSQL
 - Admin GraphQL (`read_content`, `write_content`, `read_products`)
 
@@ -53,8 +53,13 @@ Con ngrok (dos terminales en el servidor):
 # Terminal 1
 ngrok http 3458
 
+ngrok http --url=monkey-tight-lab.ngrok-free.app 3458
+
 # Terminal 2 — el :3458 es el puerto LOCAL del proxy, no el 4040 de la UI de ngrok
 shopify app dev --tunnel-url https://TU-URL.ngrok-free.app:3458
+
+shopify app dev --tunnel-url https://monkey-tight-lab.ngrok-free.app:3458
+
 ```
 
 Si antes usaste `--use-localhost`, limpia la preview:
@@ -84,10 +89,24 @@ Tras cambiar scopes en `shopify.app.toml`, reinstala la app en la tienda de desa
 | `SCOPES` | Debe incluir `read_content,write_content,read_products` |
 | `ALLOWED_EMAILS` | Opcional: emails permitidos separados por coma |
 
-## Notas
+## Estilos del theme (Bulma)
 
-- El HTML publicado en la tienda **no incluye CSS Bulma** en v1; la preview en la app sí.
-- Para estilos en el storefront, añade CSS al theme en una fase posterior.
+La vista previa y el editor cargan CSS compilado desde [`src/bulma/bulma.scss`](src/bulma/bulma.scss) (copia vendoreada del theme Shopify). El entry de la app es [`app/styles/theme-preview.scss`](app/styles/theme-preview.scss), incluido solo en la ruta del editor vía `links()`.
+
+**Sincronizar con el theme:** cuando cambies Sass en el theme, copia la carpeta `src/bulma/` del theme a este repo y vuelve a compilar (`npm run dev` o `npm run build`).
+
+El HTML publicado en Shopify **no incluye** `<link>` ni estilos embebidos; el theme de la tienda ya carga el mismo Bulma en el storefront.
+
+Si Bulma interfiere con Polaris en el admin embebido, se puede añadir prefijo PostCSS (`.article-editor-content`) en una fase posterior.
+
+## Bloques personalizados (BlockNote)
+
+Para añadir un nuevo bloque (p. ej. otro embed de Shopify), sigue la guía del repo:
+
+- **[.agents/custom-blocks.md](.agents/custom-blocks.md)** — checklist, arquitectura, archivos a tocar y errores habituales.
+- **[.agents/BlockNote.md](.agents/BlockNote.md)** — índice de la documentación oficial de BlockNote.
+
+Patrón resumido: `*EmbedView` (markup) → `*EmbedBlock` (`render` + `toExternalHTML`) → `schema.js` → opcional `enrich-embeds.server.js` → insert desde picker / menú `/`.
 
 ## Resources
 

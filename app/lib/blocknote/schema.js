@@ -18,6 +18,7 @@ const productEmbed = createReactBlockSpec(
       productTitle: { default: "" },
       productImageUrl: { default: "" },
       productHandle: { default: "" },
+      productPriceLabel: { default: "" },
     },
     content: "none",
   },

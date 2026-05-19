@@ -14,13 +14,13 @@ import {
 } from "../lib/shopify/articles.server";
 import { searchProducts, searchCollections } from "../lib/shopify/catalog.server";
 import { exportArticleHtml } from "../lib/blocknote/export-html.server";
-import { BlogEditor, insertEmbedBlock } from "../components/editor/BlogEditor";
-import bulmaStyles from "bulma/css/bulma.min.css?url";
+import { BlogEditor, insertEmbedBlock } from "../components/editor/BlogEditor.client";
+import themePreviewStyles from "../styles/theme-preview.scss?url";
 import articleContentStyles from "../styles/article-content.css?url";
 import { useAppPath } from "../lib/use-app-path";
 
 export const links = () => [
-  { rel: "stylesheet", href: bulmaStyles },
+  { rel: "stylesheet", href: themePreviewStyles },
   { rel: "stylesheet", href: articleContentStyles },
 ];
 
@@ -229,11 +229,16 @@ function EditorPage() {
     if (!editor) return;
 
     if (kind === "product") {
+      const price = item.priceRangeV2?.minVariantPrice;
+      const productPriceLabel = price
+        ? `${price.amount} ${price.currencyCode}`
+        : "";
       insertEmbedBlock(editor, "product", {
         productGid: item.id,
         productTitle: item.title,
         productImageUrl: item.featuredImage?.url || "",
         productHandle: item.handle || "",
+        productPriceLabel,
         layout: "card",
       });
     } else {
