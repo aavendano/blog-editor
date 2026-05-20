@@ -1,40 +1,35 @@
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import { getDefaultReactSlashMenuItems } from "@blocknote/react";
-import { RiShoppingBag3Line, RiStackLine } from "react-icons/ri";
+import { RiArticleLine, RiShoppingBag3Line, RiStackLine } from "react-icons/ri";
+import { CUSTOM_EMBED_BLOCKS } from "./custom-block-catalog";
+
+const REACT_ICONS = {
+  RiShoppingBag3Line,
+  RiStackLine,
+  RiArticleLine,
+};
 
 /**
  * @param {import("@blocknote/core").BlockNoteEditor} editor
  * @param {{
- *   onOpenProductPicker?: () => void;
- *   onOpenCollectionPicker?: () => void;
+ *   onOpenPicker?: (kind: import("./custom-block-catalog.js").EmbedKind) => void;
  * }} callbacks
  * @param {string} query
  */
 export function getArticleSlashMenuItems(editor, callbacks, query) {
-  const { onOpenProductPicker, onOpenCollectionPicker } = callbacks;
-  const shopifyItems = [];
+  const shopifyItems = CUSTOM_EMBED_BLOCKS.map((block) => {
+    if (!callbacks.onOpenPicker) return null;
 
-  if (onOpenProductPicker) {
-    shopifyItems.push({
-      title: "Producto",
+    const Icon = REACT_ICONS[block.reactIcon];
+    return {
+      title: block.title,
       group: "Shopify",
-      subtext: "Insertar producto del catálogo",
-      aliases: ["product", "producto", "shopify"],
-      onItemClick: onOpenProductPicker,
-      icon: <RiShoppingBag3Line size={18} />,
-    });
-  }
-
-  if (onOpenCollectionPicker) {
-    shopifyItems.push({
-      title: "Colección",
-      group: "Shopify",
-      subtext: "Insertar colección del catálogo",
-      aliases: ["collection", "coleccion", "colección"],
-      onItemClick: onOpenCollectionPicker,
-      icon: <RiStackLine size={18} />,
-    });
-  }
+      subtext: block.description,
+      aliases: block.slashAliases,
+      onItemClick: () => callbacks.onOpenPicker?.(block.kind),
+      icon: Icon ? <Icon size={18} /> : undefined,
+    };
+  }).filter(Boolean);
 
   return filterSuggestionItems(
     [...getDefaultReactSlashMenuItems(editor), ...shopifyItems],

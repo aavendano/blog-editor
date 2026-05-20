@@ -1,4 +1,5 @@
 import { getProduct, getCollection } from "../shopify/catalog.server";
+import { getArticle, excerptFromArticle } from "../shopify/articles.server";
 
 /**
  * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
@@ -61,6 +62,40 @@ async function enrichCollectionEmbedProps(admin, props) {
 }
 
 /**
+ * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
+ * @param {Record<string, unknown>} props
+ */
+async function enrichArticleEmbedProps(admin, props) {
+  const gid = props.articleGid;
+  if (!gid) return props;
+
+  try {
+    const article = await getArticle(admin, String(gid));
+    if (!article) return props;
+    return {
+      ...props,
+      articleTitle: article.title || props.articleTitle || "Article",
+      articleHandle: article.handle || props.articleHandle || "",
+      articleImageUrl: article.image?.url || props.articleImageUrl || "",
+      blogHandle: article.blog?.handle || props.blogHandle || "",
+      blogTitle: article.blog?.title || props.blogTitle || "",
+      articleExcerpt:
+        excerptFromArticle(article) || props.articleExcerpt || "",
+    };
+  } catch {
+    return {
+      ...props,
+      articleTitle: props.articleTitle || "Article",
+      articleHandle: props.articleHandle || "",
+      articleImageUrl: props.articleImageUrl || "",
+      blogHandle: props.blogHandle || "",
+      blogTitle: props.blogTitle || "",
+      articleExcerpt: props.articleExcerpt || "",
+    };
+  }
+}
+
+/**
  * @param {Record<string, unknown>} block
  * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
  */
@@ -69,8 +104,10 @@ async function enrichBlock(block, admin) {
   const props = block.props || {};
 
   let enrichedProps = props;
-  if (type === "productEmbed") {
+  if (type === "productEmbed" || type === "productHorizontal") {
     enrichedProps = await enrichProductEmbedProps(admin, props);
+  } else if (type === "articleEmbed") {
+    enrichedProps = await enrichArticleEmbedProps(admin, props);
   } else if (type === "collectionEmbed") {
     enrichedProps = await enrichCollectionEmbedProps(admin, props);
   }

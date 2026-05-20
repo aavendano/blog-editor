@@ -1,0 +1,4 @@
+/* Scope for BlockNote editor and HTML preview (Bulma b-* classes). */
+.article-editor-content {
+  max-width: 100%;
+}

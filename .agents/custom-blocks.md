@@ -41,13 +41,18 @@ flowchart TB
 | `app/lib/blocknote/enrich-embeds.server.js` | Refresco de props desde Shopify antes del export |
 | `app/lib/blocknote/export-html.server.js` | `enrichBlocknoteDoc` → `blocksToHTMLLossy` (no tocar salvo cambio global) |
 | `app/lib/blocknote/server-editor.server.js` | Singleton `ServerBlockNoteEditor` con el mismo schema |
-| `app/lib/blocknote/slash-menu-items.jsx` | Entrada en menú `/` (opcional) |
-| `app/routes/app.articles.$id.jsx` | Picker / `insertFromPicker` con props iniciales |
-| `app/components/editor/BlogEditor.client.jsx` | Editor BlockNote + `insertEmbedBlock` (solo cliente) |
+| `app/lib/blocknote/custom-block-catalog.js` | Catálogo de bloques embebidos (sidebar + slash) |
+| `app/lib/blocknote/slash-menu-items.jsx` | Menú `/` derivado del catálogo |
+| `app/components/editor/CustomBlocksSidebar.jsx` | Panel izquierdo: catálogo + picker de búsqueda |
+| `app/components/editor/ArticleEditorShell.client.jsx` | Layout sidebar + editor; `insertFromPicker`, búsqueda (`useFetcher`) |
+| `app/components/editor/BlogEditor.client.jsx` | BlockNote + `insertEmbedBlock` (solo cliente) |
+| `app/routes/app.articles.$id.jsx` | Monta `ArticleEditorShell` en pestaña Editar |
+| `app/styles/article-editor-layout.css` | Grid sidebar + área de edición |
 
 Referencias de implementación:
 
-- Producto: [`ProductEmbedView.jsx`](../app/components/editor/blocks/ProductEmbedView.jsx), [`ProductEmbedBlock.jsx`](../app/components/editor/blocks/ProductEmbedBlock.jsx)
+- Producto (tarjeta): [`ProductEmbedView.jsx`](../app/components/editor/blocks/ProductEmbedView.jsx), [`ProductEmbedBlock.jsx`](../app/components/editor/blocks/ProductEmbedBlock.jsx)
+- Producto horizontal (fila): [`ProductHorizontalView.jsx`](../app/components/editor/blocks/ProductHorizontalView.jsx), [`ProductHorizontalBlock.jsx`](../app/components/editor/blocks/ProductHorizontalBlock.jsx) — mismo `searchIntent` (`searchProducts`) y distinto `type` en schema (`productHorizontal`)
 - Colección: [`CollectionEmbedView.jsx`](../app/components/editor/blocks/CollectionEmbedView.jsx), [`CollectionEmbedBlock.jsx`](../app/components/editor/blocks/CollectionEmbedBlock.jsx)
 
 ## Checklist: nuevo bloque embebido
@@ -150,7 +155,7 @@ Implementar la query en [`app/lib/shopify/catalog.server.js`](../app/lib/shopify
 
 ### 5. Insertar desde la UI
 
-**Props al insertar** — en `insertFromPicker` (o equivalente) en [`app.articles.$id.jsx`](../app/routes/app.articles.$id.jsx):
+**Props al insertar** — en `insertFromPicker` dentro de [`ArticleEditorShell.client.jsx`](../app/components/editor/ArticleEditorShell.client.jsx):
 
 ```js
 insertEmbedBlock(editor, "foo", {
@@ -161,11 +166,13 @@ insertEmbedBlock(editor, "foo", {
 });
 ```
 
-`insertEmbedBlock` en [`BlogEditor.client.jsx`](../app/components/editor/BlogEditor.client.jsx) mapea `kind` → `type` (`product` → `productEmbed`). Para un nuevo kind, extender ese helper o llamar `editor.insertBlocks` con `type: "fooEmbed"` directamente.
+`insertEmbedBlock` en [`BlogEditor.client.jsx`](../app/components/editor/BlogEditor.client.jsx) mapea `kind` → `type` (`product` → `productEmbed`). Para un nuevo kind, extender ese helper, el catálogo y la rama correspondiente en `insertFromPicker` del shell (o llamar `editor.insertBlocks` con `type: "fooEmbed"` directamente).
 
-**Menú slash** — en [`slash-menu-items.jsx`](../app/lib/blocknote/slash-menu-items.jsx), añadir ítem que abra el picker (`onItemClick`).
+**Catálogo** — añadir entrada en [`custom-block-catalog.js`](../app/lib/blocknote/custom-block-catalog.js) (`kind`, `searchIntent`, iconos). La sidebar y el menú `/` se actualizan solos.
 
-**Picker / búsqueda** — action en la route del artículo (`searchFoos`) que devuelva resultados GraphQL; reutilizar el patrón de `searchProducts` / `searchCollections`.
+**Menú slash** — [`slash-menu-items.jsx`](../app/lib/blocknote/slash-menu-items.jsx) mapea el catálogo; no hace falta duplicar ítems a mano.
+
+**Picker / búsqueda** — action en la route del artículo (`searchFoos`) que devuelva resultados GraphQL; extender `insertFromPicker` y `getSearchIntentForKind` en el shell. Reutilizar el patrón de `searchProducts` / `searchCollections`.
 
 ### 6. No hace falta tocar (salvo cambios globales)
 
@@ -176,7 +183,7 @@ insertEmbedBlock(editor, "foo", {
 
 - El editor y la vista previa cargan Bulma vía [`app/styles/theme-preview.scss`](../app/styles/theme-preview.scss).
 - El HTML en Shopify **no incluye** `<link>`; el storefront del theme debe tener las mismas clases `b-*`.
-- Clase de contenedor semántica en el embed: `product-embed`, `collection-embed` — usar `{name}-embed` para CSS específico en theme.
+- Clase de contenedor semántica en el embed: `product-embed`, `product-horizontal-embed`, `collection-embed` — usar `{name}-embed` para CSS específico en theme.
 
 ## Bloques sin datos de Shopify
 

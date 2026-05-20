@@ -15,28 +15,20 @@ patchProseMirrorRenderSpec();
  *   initialDoc: unknown;
  *   onChange: (doc: unknown) => void;
  *   editorRef?: React.MutableRefObject<import("@blocknote/core").BlockNoteEditor | null>;
- *   onOpenProductPicker?: () => void;
- *   onOpenCollectionPicker?: () => void;
+ *   onOpenPicker?: (kind: import("../../lib/blocknote/custom-block-catalog.js").EmbedKind) => void;
  * }} props
  */
 export function BlogEditor({
   initialDoc,
   onChange,
   editorRef,
-  onOpenProductPicker,
-  onOpenCollectionPicker,
+  onOpenPicker,
 }) {
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  const pickerCallbacksRef = useRef({
-    onOpenProductPicker,
-    onOpenCollectionPicker,
-  });
-  pickerCallbacksRef.current = {
-    onOpenProductPicker,
-    onOpenCollectionPicker,
-  };
+  const pickerCallbacksRef = useRef({ onOpenPicker });
+  pickerCallbacksRef.current = { onOpenPicker };
 
   const editor = useCreateBlockNote({
     schema: blocknoteSchema,
@@ -63,24 +55,30 @@ export function BlogEditor({
   );
 
   return (
-    <div className="article-editor-content">
-      <BlockNoteView editor={editor} slashMenu={false} theme="light">
-        <SuggestionMenuController
-          triggerCharacter="/"
-          getItems={getSlashMenuItems}
-        />
-      </BlockNoteView>
-    </div>
+    <BlockNoteView editor={editor} slashMenu={false} theme="light">
+      <SuggestionMenuController
+        triggerCharacter="/"
+        getItems={getSlashMenuItems}
+      />
+    </BlockNoteView>
   );
 }
 
+/** @type {Record<import("../../lib/blocknote/custom-block-catalog.js").EmbedKind, string>} */
+const BLOCK_TYPE_BY_KIND = {
+  product: "productEmbed",
+  productHorizontal: "productHorizontal",
+  article: "articleEmbed",
+  collection: "collectionEmbed",
+};
+
 /**
  * @param {import("@blocknote/core").BlockNoteEditor} editor
- * @param {"product" | "collection"} kind
+ * @param {import("../../lib/blocknote/custom-block-catalog.js").EmbedKind} kind
  * @param {Record<string, string>} props
  */
 export function insertEmbedBlock(editor, kind, props) {
-  const type = kind === "product" ? "productEmbed" : "collectionEmbed";
+  const type = BLOCK_TYPE_BY_KIND[kind];
   const cursor = editor.getTextCursorPosition();
   return editor.insertBlocks([{ type, props }], cursor.block, "after");
 }

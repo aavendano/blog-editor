@@ -1,3 +1,38 @@
+export { excerptFromArticle } from "./article-excerpt.js";
+
+/**
+ * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
+ */
+export async function searchArticles(admin, query = "", first = 10) {
+  const response = await admin.graphql(
+    `#graphql
+      query SearchArticles($query: String, $first: Int!) {
+        articles(first: $first, query: $query) {
+          nodes {
+            id
+            title
+            handle
+            summary
+            image {
+              url
+            }
+            blog {
+              id
+              handle
+              title
+            }
+          }
+        }
+      }`,
+    { variables: { query: query || undefined, first } },
+  );
+  const { data, errors } = await response.json();
+  if (errors?.length) {
+    throw new Error(errors.map((e) => e.message).join(", "));
+  }
+  return data.articles.nodes;
+}
+
 /**
  * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
  */
@@ -10,9 +45,14 @@ export async function getArticle(admin, id) {
           title
           handle
           body
+          summary
+          image {
+            url
+          }
           blog {
             id
             title
+            handle
           }
           updatedAt
           isPublished

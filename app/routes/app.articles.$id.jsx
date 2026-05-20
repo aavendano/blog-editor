@@ -13,15 +13,18 @@ import {
   updateArticle,
 } from "../lib/shopify/articles.server";
 import { searchProducts, searchCollections } from "../lib/shopify/catalog.server";
+import { searchArticles } from "../lib/shopify/articles.server";
 import { exportArticleHtml } from "../lib/blocknote/export-html.server";
-import { BlogEditor, insertEmbedBlock } from "../components/editor/BlogEditor.client";
+import { ArticleEditorShell } from "../components/editor/ArticleEditorShell.client";
 import themePreviewStyles from "../styles/theme-preview.scss?url";
 import articleContentStyles from "../styles/article-content.css?url";
+import articleEditorLayoutStyles from "../styles/article-editor-layout.css?url";
 import { useAppPath } from "../lib/use-app-path";
 
 export const links = () => [
   { rel: "stylesheet", href: themePreviewStyles },
   { rel: "stylesheet", href: articleContentStyles },
+  { rel: "stylesheet", href: articleEditorLayoutStyles },
 ];
 
 export const loader = async ({ request, params }) => {
@@ -141,6 +144,12 @@ export const action = async ({ request, params }) => {
     return { collections };
   }
 
+  if (intent === "searchArticles") {
+    const q = String(formData.get("query") || "");
+    const articles = await searchArticles(admin, q, 10);
+    return { articles };
+  }
+
   return { error: "Acción desconocida" };
 };
 
@@ -148,7 +157,6 @@ function EditorPage() {
   const { draft, blogs, shopifyArticle, htmlPreview: initialPreview } =
     useLoaderData();
   const fetcher = useFetcher();
-  const searchFetcher = useFetcher();
   const navigate = useNavigate();
   const articlesPath = useAppPath("/app/articles");
   const shopify = useAppBridge();
@@ -158,9 +166,6 @@ function EditorPage() {
   const [doc, setDoc] = useState(draft.blocknoteDoc);
   const [tab, setTab] = useState("edit");
   const [previewHtml, setPreviewHtml] = useState(initialPreview || "");
-  const [pickerKind, setPickerKind] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const editorRef = useRef(null);
   const saveTimeoutRef = useRef(null);
 
   const blogTitle =
@@ -216,50 +221,6 @@ function EditorPage() {
     fd.set("blocknoteDoc", JSON.stringify(doc));
     fetcher.submit(fd, { method: "post" });
   };
-
-  const runSearch = (kind, query) => {
-    const fd = new FormData();
-    fd.set("intent", kind === "product" ? "searchProducts" : "searchCollections");
-    fd.set("query", query);
-    searchFetcher.submit(fd, { method: "post" });
-  };
-
-  const insertFromPicker = (item, kind) => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    if (kind === "product") {
-      const price = item.priceRangeV2?.minVariantPrice;
-      const productPriceLabel = price
-        ? `${price.amount} ${price.currencyCode}`
-        : "";
-      insertEmbedBlock(editor, "product", {
-        productGid: item.id,
-        productTitle: item.title,
-        productImageUrl: item.featuredImage?.url || "",
-        productHandle: item.handle || "",
-        productPriceLabel,
-        layout: "card",
-      });
-    } else {
-      insertEmbedBlock(editor, "collection", {
-        collectionGid: item.id,
-        collectionTitle: item.title,
-        collectionImageUrl: item.image?.url || "",
-        collectionHandle: item.handle || "",
-        layout: "card",
-      });
-    }
-    setPickerKind(null);
-    setSearchQuery("");
-  };
-
-  const searchResults =
-    pickerKind === "product"
-      ? searchFetcher.data?.products
-      : pickerKind === "collection"
-        ? searchFetcher.data?.collections
-        : null;
 
   const isPublishing =
     fetcher.state !== "idle" && fetcher.formData?.get("intent") === "publish";
@@ -327,31 +288,12 @@ function EditorPage() {
             >
               Vista previa
             </s-button>
-
-            <s-button 
-            variant="tertiary"
-            icon="product-add"
-            onClick={() => setPickerKind("product")}>
-              Producto
-            </s-button>
-
-            <s-button
-              variant="tertiary"
-              icon="collection-reference"
-              onClick={() => setPickerKind("collection")}
-            >
-              Colección
-            </s-button>
-
           </s-stack>
 
           {tab === "edit" ? (
-            <BlogEditor
+            <ArticleEditorShell
               initialDoc={draft.blocknoteDoc}
               onChange={handleDocChange}
-              editorRef={editorRef}
-              onOpenProductPicker={() => setPickerKind("product")}
-              onOpenCollectionPicker={() => setPickerKind("collection")}
             />
           ) : (
             <div
@@ -363,41 +305,6 @@ function EditorPage() {
           )}
         </s-stack>
       </s-section>
-
-      {pickerKind ? (
-        <s-section heading={pickerKind === "product" ? "Insertar producto" : "Insertar colección"}>
-          <s-stack direction="block" gap="base">
-            <input
-              type="search"
-              placeholder="Buscar…"
-              value={searchQuery}
-              onChange={(e) => {
-                const q = e.target.value;
-                setSearchQuery(q);
-                runSearch(pickerKind, q);
-              }}
-            />
-            <s-button
-              variant="secondary"
-              onClick={() => runSearch(pickerKind, searchQuery)}
-            >
-              Buscar
-            </s-button>
-            {searchResults?.map((item) => (
-              <s-button
-                key={item.id}
-                variant="tertiary"
-                onClick={() => insertFromPicker(item, pickerKind)}
-              >
-                {item.title}
-              </s-button>
-            ))}
-            <s-button variant="tertiary" onClick={() => setPickerKind(null)}>
-              Cancelar
-            </s-button>
-          </s-stack>
-        </s-section>
-      ) : null}
     </s-page>
   );
 }
