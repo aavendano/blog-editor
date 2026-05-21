@@ -59,3 +59,15 @@
 .article-editor-content .table-of-contents-item.level-4 {
   margin-left: 1.5rem;
 }
+
+.article-editor-content .highlight-notification-embed {
+  margin: 0.5rem 0 1.25rem;
+}
+
+.article-editor-content .highlight-notification-body {
+  margin: 0;
+}
+
+.article-editor-content .highlight-notification-link {
+  margin: 0.5rem 0 0;
+}

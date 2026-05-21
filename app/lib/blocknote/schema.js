@@ -24,6 +24,10 @@ import {
   TableOfContentsBlock,
   TableOfContentsExternal,
 } from "../../components/editor/blocks/TableOfContentsBlock";
+import {
+  HighlightNotificationBlock,
+  HighlightNotificationExternal,
+} from "../../components/editor/blocks/HighlightNotificationBlock";
 
 const productEmbed = createReactBlockSpec(
   {
@@ -149,6 +153,26 @@ const tableOfContents = createReactBlockSpec(
   },
 );
 
+const highlightNotification = createReactBlockSpec(
+  {
+    type: "highlightNotification",
+    propSchema: {
+      notificationVariant: {
+        default: "is-light",
+        values: ["is-link", "is-primary", "is-light", "is-dark"],
+      },
+      notificationTitle: { default: "" },
+      notificationLinkUrl: { default: "" },
+      notificationLinkLabel: { default: "" },
+    },
+    content: "inline",
+  },
+  {
+    render: HighlightNotificationBlock,
+    toExternalHTML: HighlightNotificationExternal,
+  },
+);
+
 export const blocknoteSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
@@ -158,5 +182,6 @@ export const blocknoteSchema = BlockNoteSchema.create({
     articleEmbed: articleEmbed(),
     collectionEmbed: collectionEmbed(),
     tableOfContents: tableOfContents(),
+    highlightNotification: highlightNotification(),
   },
 });

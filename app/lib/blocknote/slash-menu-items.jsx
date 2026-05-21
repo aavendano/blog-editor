@@ -1,6 +1,7 @@
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import { getDefaultReactSlashMenuItems } from "@blocknote/react";
 import {
+  RiAlarmWarningLine,
   RiArticleLine,
   RiListOrdered,
   RiShoppingBag3Line,
@@ -13,6 +14,7 @@ const REACT_ICONS = {
   RiStackLine,
   RiArticleLine,
   RiListOrdered,
+  RiAlarmWarningLine,
 };
 
 /**

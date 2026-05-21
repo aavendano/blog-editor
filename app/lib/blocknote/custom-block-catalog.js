@@ -1,4 +1,4 @@
-/** @typedef {"product" | "productHorizontal" | "productRow" | "article" | "collection" | "tableOfContents"} EmbedKind */
+/** @typedef {"product" | "productHorizontal" | "productRow" | "article" | "collection" | "tableOfContents" | "highlightNotification"} EmbedKind */
 
 /**
  * @typedef {Object} CustomEmbedBlockDef
@@ -9,7 +9,7 @@
  * @property {"picker" | "direct"} [insertMode]
  * @property {string} polarisIcon
  * @property {string[]} slashAliases
- * @property {"RiShoppingBag3Line" | "RiStackLine" | "RiArticleLine" | "RiListOrdered"} reactIcon
+ * @property {"RiShoppingBag3Line" | "RiStackLine" | "RiArticleLine" | "RiListOrdered" | "RiAlarmWarningLine"} reactIcon
  */
 
 /** @type {CustomEmbedBlockDef[]} */
@@ -67,6 +67,15 @@ export const CUSTOM_EMBED_BLOCKS = [
     polarisIcon: "list-bulleted",
     slashAliases: ["toc", "tablaContenido", "indice", "indiceContenido"],
     reactIcon: "RiListOrdered",
+  },
+  {
+    kind: "highlightNotification",
+    title: "Texto de resaltado",
+    description: "Bloque notification de Bulma con variantes de color",
+    insertMode: "direct",
+    polarisIcon: "alert-bubble",
+    slashAliases: ["resaltado", "highlight", "notification", "callout"],
+    reactIcon: "RiAlarmWarningLine",
   },
 ];
 

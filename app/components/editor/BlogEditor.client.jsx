@@ -74,6 +74,7 @@ const BLOCK_TYPE_BY_KIND = {
   article: "articleEmbed",
   collection: "collectionEmbed",
   tableOfContents: "tableOfContents",
+  highlightNotification: "highlightNotification",
 };
 
 /**
