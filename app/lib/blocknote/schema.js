@@ -13,6 +13,10 @@ import {
   ProductHorizontalExternal,
 } from "../../components/editor/blocks/ProductHorizontalBlock";
 import {
+  ProductRowBlock,
+  ProductRowExternal,
+} from "../../components/editor/blocks/ProductRowBlock";
+import {
   ArticleEmbedBlock,
   ArticleEmbedExternal,
 } from "../../components/editor/blocks/ArticleEmbedBlock";
@@ -52,6 +56,39 @@ const productHorizontal = createReactBlockSpec(
   {
     render: ProductHorizontalBlock,
     toExternalHTML: ProductHorizontalExternal,
+  },
+);
+
+const productRow = createReactBlockSpec(
+  {
+    type: "productRow",
+    propSchema: {
+      product1Gid: { default: "" },
+      product1Title: { default: "" },
+      product1ImageUrl: { default: "" },
+      product1Handle: { default: "" },
+      product1PriceLabel: { default: "" },
+      product2Gid: { default: "" },
+      product2Title: { default: "" },
+      product2ImageUrl: { default: "" },
+      product2Handle: { default: "" },
+      product2PriceLabel: { default: "" },
+      product3Gid: { default: "" },
+      product3Title: { default: "" },
+      product3ImageUrl: { default: "" },
+      product3Handle: { default: "" },
+      product3PriceLabel: { default: "" },
+      product4Gid: { default: "" },
+      product4Title: { default: "" },
+      product4ImageUrl: { default: "" },
+      product4Handle: { default: "" },
+      product4PriceLabel: { default: "" },
+    },
+    content: "none",
+  },
+  {
+    render: ProductRowBlock,
+    toExternalHTML: ProductRowExternal,
   },
 );
 
@@ -98,6 +135,7 @@ export const blocknoteSchema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     productEmbed: productEmbed(),
     productHorizontal: productHorizontal(),
+    productRow: productRow(),
     articleEmbed: articleEmbed(),
     collectionEmbed: collectionEmbed(),
   },
