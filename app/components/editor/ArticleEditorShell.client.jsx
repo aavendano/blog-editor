@@ -9,9 +9,6 @@ import { excerptFromArticle } from "../../lib/shopify/article-excerpt.js";
 import { BlogEditor, insertEmbedBlock } from "./BlogEditor.client";
 import { CustomBlocksSidebar } from "./CustomBlocksSidebar";
 
-const PRODUCT_ROW_MIN = 2;
-const PRODUCT_ROW_MAX = 4;
-
 /**
  * @param {{
  *   id: string;
@@ -56,33 +53,6 @@ function productPropsFromPickerItem(item, layout) {
 }
 
 /**
- * @param {Array<{ id: string; title: string; handle?: string; featuredImage?: { url?: string }; priceRangeV2?: { minVariantPrice?: { amount: string; currencyCode: string } } }>} items
- * @returns {Record<string, string>}
- */
-function productRowPropsFromPickerItems(items) {
-  const props = {};
-  for (const slot of [1, 2, 3, 4]) {
-    props[`product${slot}Gid`] = "";
-    props[`product${slot}Title`] = "";
-    props[`product${slot}ImageUrl`] = "";
-    props[`product${slot}Handle`] = "";
-    props[`product${slot}PriceLabel`] = "";
-  }
-
-  items.slice(0, PRODUCT_ROW_MAX).forEach((item, index) => {
-    const slot = index + 1;
-    const productProps = productPropsFromPickerItem(item, "card");
-    props[`product${slot}Gid`] = productProps.productGid;
-    props[`product${slot}Title`] = productProps.productTitle;
-    props[`product${slot}ImageUrl`] = productProps.productImageUrl;
-    props[`product${slot}Handle`] = productProps.productHandle;
-    props[`product${slot}PriceLabel`] = productProps.productPriceLabel;
-  });
-
-  return props;
-}
-
-/**
  * @param {{
  *   initialDoc: unknown;
  *   onChange: (doc: unknown) => void;
@@ -97,7 +67,6 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
     ),
   );
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRowProducts, setSelectedRowProducts] = useState([]);
 
   const runSearch = useCallback(
     (kind, query) => {
@@ -112,7 +81,6 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
   const clearPicker = useCallback(() => {
     setPickerKind(null);
     setSearchQuery("");
-    setSelectedRowProducts([]);
   }, []);
 
   const insertDirectBlock = useCallback((kind) => {
@@ -130,60 +98,41 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
     }
   }, []);
 
-  const insertSingleFromPicker = useCallback((item, kind) => {
-    const editor = editorRef.current;
-    if (!editor) return;
+  const insertSingleFromPicker = useCallback(
+    (item, kind) => {
+      const editor = editorRef.current;
+      if (!editor) return;
 
-    if (kind === "product") {
-      insertEmbedBlock(
-        editor,
-        "product",
-        productPropsFromPickerItem(item, "card"),
-      );
-    } else if (kind === "productHorizontal") {
-      insertEmbedBlock(
-        editor,
-        "productHorizontal",
-        productPropsFromPickerItem(item, "row"),
-      );
-    } else if (kind === "productRow") {
-      return;
-    } else if (kind === "article") {
-      insertEmbedBlock(editor, "article", articlePropsFromPickerItem(item));
-    } else {
-      insertEmbedBlock(editor, "collection", {
-        collectionGid: item.id,
-        collectionTitle: item.title,
-        collectionImageUrl: item.image?.url || "",
-        collectionHandle: item.handle || "",
-        layout: "card",
-      });
-    }
-    clearPicker();
-  }, [clearPicker]);
-
-  const insertProductRow = useCallback(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    if (
-      selectedRowProducts.length < PRODUCT_ROW_MIN ||
-      selectedRowProducts.length > PRODUCT_ROW_MAX
-    ) {
-      return;
-    }
-
-    insertEmbedBlock(
-      editor,
-      "productRow",
-      productRowPropsFromPickerItems(selectedRowProducts),
-    );
-    clearPicker();
-  }, [clearPicker, selectedRowProducts]);
+      if (kind === "product") {
+        insertEmbedBlock(
+          editor,
+          "product",
+          productPropsFromPickerItem(item, "card"),
+        );
+      } else if (kind === "productHorizontal") {
+        insertEmbedBlock(
+          editor,
+          "productHorizontal",
+          productPropsFromPickerItem(item, "row"),
+        );
+      } else if (kind === "article") {
+        insertEmbedBlock(editor, "article", articlePropsFromPickerItem(item));
+      } else {
+        insertEmbedBlock(editor, "collection", {
+          collectionGid: item.id,
+          collectionTitle: item.title,
+          collectionImageUrl: item.image?.url || "",
+          collectionHandle: item.handle || "",
+          layout: "card",
+        });
+      }
+      clearPicker();
+    },
+    [clearPicker],
+  );
 
   const searchResults =
-    pickerKind === "product" ||
-    pickerKind === "productHorizontal" ||
-    pickerKind === "productRow"
+    pickerKind === "product" || pickerKind === "productHorizontal"
       ? searchFetcher.data?.products
       : pickerKind === "article"
         ? searchFetcher.data?.articles
@@ -191,16 +140,18 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
           ? searchFetcher.data?.collections
           : null;
 
-  const handleSelectBlock = useCallback((kind) => {
-    if (isDirectInsertKind(kind)) {
-      insertDirectBlock(kind);
-      clearPicker();
-      return;
-    }
-    setPickerKind(kind);
-    setSearchQuery("");
-    setSelectedRowProducts([]);
-  }, [clearPicker, insertDirectBlock]);
+  const handleSelectBlock = useCallback(
+    (kind) => {
+      if (isDirectInsertKind(kind)) {
+        insertDirectBlock(kind);
+        clearPicker();
+        return;
+      }
+      setPickerKind(kind);
+      setSearchQuery("");
+    },
+    [clearPicker, insertDirectBlock],
+  );
 
   const handleSearchQueryChange = useCallback(
     (query) => {
@@ -215,25 +166,10 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
   const handlePickItem = useCallback(
     (item) => {
       if (!pickerKind) return;
-      if (pickerKind !== "productRow") {
-        insertSingleFromPicker(item, pickerKind);
-        return;
-      }
-
-      setSelectedRowProducts((current) => {
-        if (current.some((product) => product.id === item.id)) return current;
-        if (current.length >= PRODUCT_ROW_MAX) return current;
-        return [...current, item];
-      });
+      insertSingleFromPicker(item, pickerKind);
     },
     [insertSingleFromPicker, pickerKind],
   );
-
-  const removeRowProduct = useCallback((itemId) => {
-    setSelectedRowProducts((current) =>
-      current.filter((item) => item.id !== itemId),
-    );
-  }, []);
 
   return (
     <div className="article-editor-layout">
@@ -247,17 +183,6 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
           onSearchQueryChange={handleSearchQueryChange}
           onRunSearch={() => pickerKind && runSearch(pickerKind, searchQuery)}
           onPickItem={handlePickItem}
-          multiSelectConfig={
-            pickerKind === "productRow"
-              ? {
-                  selectedItems: selectedRowProducts,
-                  minSelection: PRODUCT_ROW_MIN,
-                  maxSelection: PRODUCT_ROW_MAX,
-                  onRemoveItem: removeRowProduct,
-                  onConfirmSelection: insertProductRow,
-                }
-              : null
-          }
         />
       </aside>
       <main className="article-editor-main article-editor-content">

@@ -3,42 +3,6 @@
   max-width: 100%;
 }
 
-.article-editor-content .product-row-embed {
-  width: 100%;
-}
-
-.article-editor-content .product-row-track {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.article-editor-content .product-row-embed[data-product-row-count="1"] .product-row-track {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.article-editor-content .product-row-embed[data-product-row-count="3"] .product-row-track,
-.article-editor-content .product-row-embed[data-product-row-count="4"] .product-row-track {
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
-}
-
-.article-editor-content .product-row-embed.is-carousel {
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 0.25rem;
-}
-
-.article-editor-content .product-row-embed.is-carousel .product-row-track {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(220px, calc((100% - 1rem) / 2));
-  width: max-content;
-}
-
-.article-editor-content .product-row-embed.is-carousel .product-row-card {
-  scroll-snap-align: start;
-}
-
 .article-editor-content .table-of-contents-embed {
   margin: 0.5rem 0 1.25rem;
 }

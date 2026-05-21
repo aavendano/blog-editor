@@ -31,7 +31,8 @@ export function ProductEmbedView({
   priceLabel = "",
   handle = "",
   contentEditable = false,
-}) { return (
+}) {
+  return (
     <div
       className="b-card product-embed"
       data-product-gid={gid}
@@ -47,15 +48,19 @@ export function ProductEmbedView({
       <div className="b-card-content">
         <p className="b-title b-is-5">{title}</p>
         {priceLabel ? <p className="b-subtitle b-is-6">{priceLabel}</p> : null}
-        {handle ? (
-          <a
-            href={`/products/${handle}`}
-            className="b-button b-is-link b-is-small"
-          >
-            View product
-          </a>
-        ) : null}
       </div>
+      {handle ? (
+        <footer className="b-card-footer">
+          <div className="b-card-footer-item">
+            <a
+              href={`/products/${handle}`}
+              className="b-button b-is-link b-is-small"
+            >
+              View product
+            </a>
+          </div>
+        </footer>
+      ) : null}
     </div>
   );
 }

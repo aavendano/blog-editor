@@ -185,6 +185,24 @@ insertEmbedBlock(editor, "foo", {
 - El HTML en Shopify **no incluye** `<link>`; el storefront del theme debe tener las mismas clases `b-*`.
 - Clase de contenedor semántica en el embed: `product-embed`, `product-horizontal-embed`, `collection-embed` — usar `{name}-embed` para CSS específico en theme.
 
+### Patrones markup b-style por bloque
+
+Los `*View` deben reproducir el DOM que el theme compila desde **b-style** (`node_modules/b-style`). Referencias Sass: [`custom/carousel.scss`](../node_modules/b-style/src/bulma/sass/custom/carousel.scss), [`custom/card_vertical_header.scss`](../node_modules/b-style/src/bulma/sass/custom/card_vertical_header.scss).
+
+| `kind` (catálogo) | `type` (schema) | Markup b-style obligatorio |
+|-------------------|-----------------|----------------------------|
+| `product` | `productEmbed` | `b-card` + `b-card-image` + `b-is-square` + `b-card-content` + `b-card-footer` (CTA) |
+| `productHorizontal` | `productHorizontal` | `b-section` > `b-card b-card-horizontal` + `b-is-4by3` + `b-card-footer` |
+| `article` | `articleEmbed` | `b-media` + `b-media-left` + `b-is-150x150` + `b-media-content` |
+| `collection` | `collectionEmbed` | Igual que `productEmbed` (sin precio) |
+| `tableOfContents` | `tableOfContents` | `b-box` + lista; clases `table-of-contents-*` solo en [`article-content.css`](../app/styles/article-content.css) |
+| `highlightNotification` | `highlightNotification` | `b-notification` + modificador `b-is-primary` / `b-is-light` / etc. |
+
+Reglas:
+
+- CTAs de producto/colección van en `b-card-footer` > `b-card-footer-item`, no dentro de `b-card-content`.
+- El editor **no** carga Alpine de b-style; cards son solo CSS en preview/admin.
+
 ## Bloques sin datos de Shopify
 
 Para bloques estáticos (callout, banner, CTA):
@@ -211,7 +229,8 @@ En [`vite.config.js`](../vite.config.js), `ssr.noExternal` incluye solo `@blockn
 | `templates/foo.js` con strings HTML | `FooEmbedView` + `toExternalHTML` |
 | Duplicar markup en `render` y export | Un solo `*View` |
 | `switch (block.type)` en export para HTML | `blocksToHTMLLossy` |
-| Clases sin prefijo `card`, `columns` | `b-card`, `b-columns` |
+| Clases sin prefijo `card`, `carousel` | `b-card`, `b-carousel`, `b-carousel-item` |
+| `b-columns` para fila de productos | `b-carousel-wrapper` > `b-carousel` (ver b-style) |
 | Confiar solo en fetch al publicar | Guardar props al insertar + enrich al exportar |
 | Hooks de tema/context en `*View` | Props planas; si hiciera falta contexto, `withReactContext` en servidor (raro aquí) |
 

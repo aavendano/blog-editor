@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
 import { BlockNoteView } from "@blocknote/ariakit";
@@ -7,8 +7,11 @@ import { useCreateBlockNote, SuggestionMenuController } from "@blocknote/react";
 import { blocknoteSchema } from "../../lib/blocknote/schema";
 import { getArticleSlashMenuItems } from "../../lib/blocknote/slash-menu-items";
 import { patchProseMirrorRenderSpec } from "../../lib/blocknote/patch-render-spec";
+import { sanitizeInitialDoc } from "../../lib/blocknote/sanitize-initial-doc";
 
 patchProseMirrorRenderSpec();
+
+const SCHEMA_BLOCK_TYPES = Object.keys(blocknoteSchema.blockSpecs);
 
 /**
  * @param {{
@@ -32,9 +35,14 @@ export function BlogEditor({
   const pickerCallbacksRef = useRef({ onOpenPicker, onInsertBlock });
   pickerCallbacksRef.current = { onOpenPicker, onInsertBlock };
 
+  const sanitizedDoc = useMemo(
+    () => sanitizeInitialDoc(initialDoc, SCHEMA_BLOCK_TYPES),
+    [initialDoc],
+  );
+
   const editor = useCreateBlockNote({
     schema: blocknoteSchema,
-    initialContent: Array.isArray(initialDoc) ? initialDoc : undefined,
+    initialContent: sanitizedDoc.blocks,
   });
 
   useEffect(() => {
@@ -70,7 +78,6 @@ export function BlogEditor({
 const BLOCK_TYPE_BY_KIND = {
   product: "productEmbed",
   productHorizontal: "productHorizontal",
-  productRow: "productRow",
   article: "articleEmbed",
   collection: "collectionEmbed",
   tableOfContents: "tableOfContents",

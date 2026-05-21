@@ -1,4 +1,4 @@
-/** @typedef {"product" | "productHorizontal" | "productRow" | "article" | "collection" | "tableOfContents" | "highlightNotification"} EmbedKind */
+/** @typedef {"product" | "productHorizontal" | "article" | "collection" | "tableOfContents" | "highlightNotification"} EmbedKind */
 
 /**
  * @typedef {Object} CustomEmbedBlockDef
@@ -30,15 +30,6 @@ export const CUSTOM_EMBED_BLOCKS = [
     searchIntent: "searchProducts",
     polarisIcon: "product-add",
     slashAliases: ["productHorizontal", "productoHorizontal", "shopify"],
-    reactIcon: "RiShoppingBag3Line",
-  },
-  {
-    kind: "productRow",
-    title: "Fila de productos (2-4)",
-    description: "Seleccionar 2 a 4 productos en cards",
-    searchIntent: "searchProducts",
-    polarisIcon: "product-add",
-    slashAliases: ["productRow", "filaProductos", "carousel"],
     reactIcon: "RiShoppingBag3Line",
   },
   {

@@ -34,31 +34,25 @@ export function ProductHorizontalView({
 }) {
   return (
     <section className="b-section">
-      <div
-        className="b-media product-horizontal-embed"
+      <article
+        className="b-card b-card-horizontal product-horizontal-embed"
         data-product-gid={gid}
         contentEditable={contentEditable}
       >
         {imageUrl ? (
-          <figure className="b-media-left">
-            <p className="b-image b-is-100x100">
-              <img src={imageUrl} alt={title} />
-            </p>
-          </figure>
-        ) : null}
-        <div className="b-media-content">
-          <div className="b-block">
-            <p className="b-title b-is-5">{title}</p>
+          <div className="b-card-image">
+            <figure className="b-image b-is-4by3">
+              <img src={imageUrl} alt={title} loading="lazy" decoding="async" />
+            </figure>
           </div>
-
-          {priceLabel ? (
-            <div className="b-block">
-              <p className="b-subtitle b-is-5">{priceLabel}</p>
-            </div>
-          ) : null}
-
-          {handle ? (
-            <div className="b-block">
+        ) : null}
+        <div className="b-card-content">
+          <p className="b-title b-is-5">{title}</p>
+          {priceLabel ? <p className="b-subtitle b-is-6">{priceLabel}</p> : null}
+        </div>
+        {handle ? (
+          <footer className="b-card-footer">
+            <div className="b-card-footer-item">
               <a
                 href={`/products/${handle}`}
                 className="b-button b-is-link b-is-small"
@@ -66,9 +60,9 @@ export function ProductHorizontalView({
                 View product
               </a>
             </div>
-          ) : null}
-        </div>
-      </div>
+          </footer>
+        ) : null}
+      </article>
     </section>
   );
 }

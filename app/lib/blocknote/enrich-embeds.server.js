@@ -1,8 +1,6 @@
 import { getProduct, getCollection } from "../shopify/catalog.server";
 import { getArticle, excerptFromArticle } from "../shopify/articles.server";
 
-const PRODUCT_ROW_MAX = 4;
-
 /**
  * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
  * @param {Record<string, unknown>} props
@@ -98,95 +96,6 @@ async function enrichArticleEmbedProps(admin, props) {
 }
 
 /**
- * @param {Record<string, unknown>} props
- * @param {1 | 2 | 3 | 4} slot
- */
-function getProductRowSlot(props, slot) {
-  const suffix = String(slot);
-  return {
-    gid: props[`product${suffix}Gid`] || "",
-    title: props[`product${suffix}Title`] || "",
-    imageUrl: props[`product${suffix}ImageUrl`] || "",
-    handle: props[`product${suffix}Handle`] || "",
-    priceLabel: props[`product${suffix}PriceLabel`] || "",
-  };
-}
-
-/**
- * @param {Record<string, unknown>} props
- * @param {1 | 2 | 3 | 4} slot
- * @param {{ gid: string; title: string; imageUrl: string; handle: string; priceLabel: string }} product
- */
-function setProductRowSlot(props, slot, product) {
-  const suffix = String(slot);
-  props[`product${suffix}Gid`] = product.gid;
-  props[`product${suffix}Title`] = product.title;
-  props[`product${suffix}ImageUrl`] = product.imageUrl;
-  props[`product${suffix}Handle`] = product.handle;
-  props[`product${suffix}PriceLabel`] = product.priceLabel;
-}
-
-/**
- * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
- * @param {Record<string, unknown>} props
- */
-async function enrichProductRowProps(admin, props) {
-  const enrichedProps = { ...props };
-  const slots = /** @type {Array<1 | 2 | 3 | 4>} */ ([1, 2, 3, 4]);
-
-  await Promise.all(
-    slots.slice(0, PRODUCT_ROW_MAX).map(async (slot) => {
-      const current = getProductRowSlot(props, slot);
-      if (!current.gid) {
-        setProductRowSlot(enrichedProps, slot, {
-          gid: "",
-          title: current.title || "",
-          imageUrl: current.imageUrl || "",
-          handle: current.handle || "",
-          priceLabel: current.priceLabel || "",
-        });
-        return;
-      }
-
-      try {
-        const product = await getProduct(admin, String(current.gid));
-        if (!product) {
-          setProductRowSlot(enrichedProps, slot, {
-            gid: String(current.gid),
-            title: current.title || "Product",
-            imageUrl: current.imageUrl || "",
-            handle: current.handle || "",
-            priceLabel: current.priceLabel || "",
-          });
-          return;
-        }
-
-        const price = product.priceRangeV2?.minVariantPrice;
-        setProductRowSlot(enrichedProps, slot, {
-          gid: String(product.id || current.gid),
-          title: product.title || current.title || "Product",
-          imageUrl: product.featuredImage?.url || current.imageUrl || "",
-          handle: product.handle || current.handle || "",
-          priceLabel: price
-            ? `${price.amount} ${price.currencyCode}`
-            : current.priceLabel || "",
-        });
-      } catch {
-        setProductRowSlot(enrichedProps, slot, {
-          gid: String(current.gid),
-          title: current.title || "Product",
-          imageUrl: current.imageUrl || "",
-          handle: current.handle || "",
-          priceLabel: current.priceLabel || "",
-        });
-      }
-    }),
-  );
-
-  return enrichedProps;
-}
-
-/**
  * @param {Record<string, unknown>} block
  * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
  */
@@ -197,8 +106,6 @@ async function enrichBlock(block, admin) {
   let enrichedProps = props;
   if (type === "productEmbed" || type === "productHorizontal") {
     enrichedProps = await enrichProductEmbedProps(admin, props);
-  } else if (type === "productRow") {
-    enrichedProps = await enrichProductRowProps(admin, props);
   } else if (type === "articleEmbed") {
     enrichedProps = await enrichArticleEmbedProps(admin, props);
   } else if (type === "collectionEmbed") {

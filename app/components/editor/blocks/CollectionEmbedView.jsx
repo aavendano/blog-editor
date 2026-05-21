@@ -28,7 +28,8 @@ export function CollectionEmbedView({
   imageUrl = "",
   handle = "",
   contentEditable = false,
-}) { return (
+}) {
+  return (
     <div
       className="b-card collection-embed"
       data-collection-gid={gid}
@@ -43,15 +44,19 @@ export function CollectionEmbedView({
       ) : null}
       <div className="b-card-content">
         <p className="b-title b-is-5">{title}</p>
-        {handle ? (
-          <a
-            href={`/collections/${handle}`}
-            className="b-button b-is-link b-is-small"
-          >
-            View collection
-          </a>
-        ) : null}
       </div>
+      {handle ? (
+        <footer className="b-card-footer">
+          <div className="b-card-footer-item">
+            <a
+              href={`/collections/${handle}`}
+              className="b-button b-is-link b-is-small"
+            >
+              View collection
+            </a>
+          </div>
+        </footer>
+      ) : null}
     </div>
   );
 }
