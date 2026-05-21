@@ -7,6 +7,9 @@ import { excerptFromArticle } from "../../lib/shopify/article-excerpt.js";
 import { BlogEditor, insertEmbedBlock } from "./BlogEditor.client";
 import { CustomBlocksSidebar } from "./CustomBlocksSidebar";
 
+const PRODUCT_ROW_MIN = 2;
+const PRODUCT_ROW_MAX = 4;
+
 /**
  * @param {{
  *   id: string;
@@ -51,6 +54,33 @@ function productPropsFromPickerItem(item, layout) {
 }
 
 /**
+ * @param {Array<{ id: string; title: string; handle?: string; featuredImage?: { url?: string }; priceRangeV2?: { minVariantPrice?: { amount: string; currencyCode: string } } }>} items
+ * @returns {Record<string, string>}
+ */
+function productRowPropsFromPickerItems(items) {
+  const props = {};
+  for (const slot of [1, 2, 3, 4]) {
+    props[`product${slot}Gid`] = "";
+    props[`product${slot}Title`] = "";
+    props[`product${slot}ImageUrl`] = "";
+    props[`product${slot}Handle`] = "";
+    props[`product${slot}PriceLabel`] = "";
+  }
+
+  items.slice(0, PRODUCT_ROW_MAX).forEach((item, index) => {
+    const slot = index + 1;
+    const productProps = productPropsFromPickerItem(item, "card");
+    props[`product${slot}Gid`] = productProps.productGid;
+    props[`product${slot}Title`] = productProps.productTitle;
+    props[`product${slot}ImageUrl`] = productProps.productImageUrl;
+    props[`product${slot}Handle`] = productProps.productHandle;
+    props[`product${slot}PriceLabel`] = productProps.productPriceLabel;
+  });
+
+  return props;
+}
+
+/**
  * @param {{
  *   initialDoc: unknown;
  *   onChange: (doc: unknown) => void;
@@ -65,6 +95,7 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
     ),
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRowProducts, setSelectedRowProducts] = useState([]);
 
   const runSearch = useCallback(
     (kind, query) => {
@@ -76,7 +107,13 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
     [searchFetcher],
   );
 
-  const insertFromPicker = useCallback((item, kind) => {
+  const clearPicker = useCallback(() => {
+    setPickerKind(null);
+    setSearchQuery("");
+    setSelectedRowProducts([]);
+  }, []);
+
+  const insertSingleFromPicker = useCallback((item, kind) => {
     const editor = editorRef.current;
     if (!editor) return;
 
@@ -92,6 +129,8 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
         "productHorizontal",
         productPropsFromPickerItem(item, "row"),
       );
+    } else if (kind === "productRow") {
+      return;
     } else if (kind === "article") {
       insertEmbedBlock(editor, "article", articlePropsFromPickerItem(item));
     } else {
@@ -103,12 +142,31 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
         layout: "card",
       });
     }
-    setPickerKind(null);
-    setSearchQuery("");
-  }, []);
+    clearPicker();
+  }, [clearPicker]);
+
+  const insertProductRow = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    if (
+      selectedRowProducts.length < PRODUCT_ROW_MIN ||
+      selectedRowProducts.length > PRODUCT_ROW_MAX
+    ) {
+      return;
+    }
+
+    insertEmbedBlock(
+      editor,
+      "productRow",
+      productRowPropsFromPickerItems(selectedRowProducts),
+    );
+    clearPicker();
+  }, [clearPicker, selectedRowProducts]);
 
   const searchResults =
-    pickerKind === "product" || pickerKind === "productHorizontal"
+    pickerKind === "product" ||
+    pickerKind === "productHorizontal" ||
+    pickerKind === "productRow"
       ? searchFetcher.data?.products
       : pickerKind === "article"
         ? searchFetcher.data?.articles
@@ -119,6 +177,7 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
   const handleSelectBlock = useCallback((kind) => {
     setPickerKind(kind);
     setSearchQuery("");
+    setSelectedRowProducts([]);
   }, []);
 
   const handleSearchQueryChange = useCallback(
@@ -131,6 +190,29 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
     [pickerKind, runSearch],
   );
 
+  const handlePickItem = useCallback(
+    (item) => {
+      if (!pickerKind) return;
+      if (pickerKind !== "productRow") {
+        insertSingleFromPicker(item, pickerKind);
+        return;
+      }
+
+      setSelectedRowProducts((current) => {
+        if (current.some((product) => product.id === item.id)) return current;
+        if (current.length >= PRODUCT_ROW_MAX) return current;
+        return [...current, item];
+      });
+    },
+    [insertSingleFromPicker, pickerKind],
+  );
+
+  const removeRowProduct = useCallback((itemId) => {
+    setSelectedRowProducts((current) =>
+      current.filter((item) => item.id !== itemId),
+    );
+  }, []);
+
   return (
     <div className="article-editor-layout">
       <aside className="article-editor-sidebar" aria-label="Bloques">
@@ -139,13 +221,21 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
           searchQuery={searchQuery}
           searchResults={searchResults}
           onSelectBlock={handleSelectBlock}
-          onCancelPicker={() => {
-            setPickerKind(null);
-            setSearchQuery("");
-          }}
+          onCancelPicker={clearPicker}
           onSearchQueryChange={handleSearchQueryChange}
           onRunSearch={() => pickerKind && runSearch(pickerKind, searchQuery)}
-          onPickItem={(item) => pickerKind && insertFromPicker(item, pickerKind)}
+          onPickItem={handlePickItem}
+          multiSelectConfig={
+            pickerKind === "productRow"
+              ? {
+                  selectedItems: selectedRowProducts,
+                  minSelection: PRODUCT_ROW_MIN,
+                  maxSelection: PRODUCT_ROW_MAX,
+                  onRemoveItem: removeRowProduct,
+                  onConfirmSelection: insertProductRow,
+                }
+              : null
+          }
         />
       </aside>
       <main className="article-editor-main article-editor-content">
@@ -153,7 +243,7 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
           initialDoc={initialDoc}
           onChange={onChange}
           editorRef={editorRef}
-          onOpenPicker={(kind) => setPickerKind(kind)}
+          onOpenPicker={handleSelectBlock}
         />
       </main>
     </div>

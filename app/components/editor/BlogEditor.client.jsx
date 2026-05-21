@@ -68,6 +68,7 @@ export function BlogEditor({
 const BLOCK_TYPE_BY_KIND = {
   product: "productEmbed",
   productHorizontal: "productHorizontal",
+  productRow: "productRow",
   article: "articleEmbed",
   collection: "collectionEmbed",
 };
