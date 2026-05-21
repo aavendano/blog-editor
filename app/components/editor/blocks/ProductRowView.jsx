@@ -53,35 +53,47 @@ export function ProductRowView({ products = [], contentEditable = false }) {
         data-product-row-count={normalizedProducts.length}
         contentEditable={contentEditable}
       >
-        <div className="product-row-track">
+        <div className="b-columns product-row-track">
           {normalizedProducts.map((product, index) => (
-            <article
-              key={product.gid || `${product.title}-${index}`}
-              className="b-card product-row-card"
-              data-product-gid={product.gid || ""}
-            >
-              {product.imageUrl ? (
-                <div className="b-card-image">
-                  <figure className="b-image b-is-square">
-                    <img src={product.imageUrl} alt={product.title || "Product"} />
-                  </figure>
+            <div className="b-column">
+              <article
+                key={product.gid || `${product.title}-${index}`}
+                className="b-card product-row-card"
+                data-product-gid={product.gid || ""}
+              >
+                {product.imageUrl ? (
+                  <div className="b-card-image">
+                    <figure className="b-image b-is-1by1">
+                      <img
+                        src={product.imageUrl}
+                        alt={product.title || "Product"}
+                        loading="lazy"
+                        decoding="async"
+                        fetchpriority="low"
+                      />
+                    </figure>
+                  </div>
+                ) : null}
+                <div className="b-card-content">
+                  <p className="b-title b-is-6">{product.title || "Product"}</p>
+                  {product.priceLabel ? (
+                    <p className="b-subtitle b-is-6">{product.priceLabel}</p>
+                  ) : null}
                 </div>
-              ) : null}
-              <div className="b-card-content">
-                <p className="b-title b-is-6">{product.title || "Product"}</p>
-                {product.priceLabel ? (
-                  <p className="b-subtitle b-is-7">{product.priceLabel}</p>
-                ) : null}
                 {product.handle ? (
-                  <a
-                    href={`/products/${product.handle}`}
-                    className="b-button b-is-link b-is-small"
-                  >
-                    View product
-                  </a>
+                  <footer className="b-card-footer">
+                    <div className="b-card-footer-item">
+                      <a
+                        href={`/products/${product.handle}`}
+                        className="b-button b-is-link b-is-small"
+                      >
+                        View product
+                      </a>
+                    </div>
+                  </footer>
                 ) : null}
-              </div>
-            </article>
+              </article>
+            </div>
           ))}
         </div>
       </div>

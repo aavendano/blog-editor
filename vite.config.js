@@ -52,7 +52,7 @@ export default defineConfig({
     hmr: hmrConfig,
     fs: {
       // See https://vitejs.dev/config/server-options.html#server-fs-allow for more information
-      allow: ["app", "node_modules", "src"],
+      allow: ["app", "node_modules"],
     },
   },
   plugins: [reactRouter(), tsconfigPaths()],

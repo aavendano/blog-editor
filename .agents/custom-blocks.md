@@ -63,7 +63,7 @@ Sustituye `Foo` / `fooEmbed` por el nombre del bloque (camelCase en `type`, Pasc
 
 - Exportar `propsFromBlock(block)` — mapea `block.props` del schema a props planas de UI.
 - Exportar `FooEmbedView({ layout, gid, title, ... contentEditable })` — solo JSX y clases Bulma.
-- Usar prefijo **`b-`** en todas las clases (`b-card`, `b-columns`, `b-title`, …). El theme compila Bulma con `$class-prefix: "b-"` en [`src/bulma/sass/utilities/initial-variables.scss`](../src/bulma/sass/utilities/initial-variables.scss).
+- Usar prefijo **`b-`** en todas las clases (`b-card`, `b-columns`, `b-title`, …). El paquete **b-style** compila Bulma con `$class-prefix: "b-"` (ver `node_modules/b-style/src/bulma/sass/utilities/initial-variables.scss`).
 - Añadir un atributo `data-*-gid` estable para identificar el recurso en HTML publicado.
 - En bloques sin texto editable: `contentEditable={false}` solo cuando `render` pase `contentEditable={false}`; **no** pasarlo en `toExternalHTML`.
 - **No** usar hooks que dependan de React Context en la vista (BlockNote serializa `toExternalHTML` en otra raíz).
@@ -181,7 +181,7 @@ insertEmbedBlock(editor, "foo", {
 
 ## Estilos y HTML publicado
 
-- El editor y la vista previa cargan Bulma vía [`app/styles/theme-preview.scss`](../app/styles/theme-preview.scss).
+- El editor y la vista previa cargan Bulma vía [`app/styles/theme-preview.scss`](../app/styles/theme-preview.scss) (paquete `b-style`) y tokens de marca en [`app/styles/theme-preview-tokens.css`](../app/styles/theme-preview-tokens.css).
 - El HTML en Shopify **no incluye** `<link>`; el storefront del theme debe tener las mismas clases `b-*`.
 - Clase de contenedor semántica en el embed: `product-embed`, `product-horizontal-embed`, `collection-embed` — usar `{name}-embed` para CSS específico en theme.
 

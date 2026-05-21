@@ -17,12 +17,14 @@ import { searchArticles } from "../lib/shopify/articles.server";
 import { exportArticleHtml } from "../lib/blocknote/export-html.server";
 import { ArticleEditorShell } from "../components/editor/ArticleEditorShell.client";
 import themePreviewStyles from "../styles/theme-preview.scss?url";
+import themePreviewTokens from "../styles/theme-preview-tokens.css?url";
 import articleContentStyles from "../styles/article-content.css?url";
 import articleEditorLayoutStyles from "../styles/article-editor-layout.css?url";
 import { useAppPath } from "../lib/use-app-path";
 
 export const links = () => [
   { rel: "stylesheet", href: themePreviewStyles },
+  { rel: "stylesheet", href: themePreviewTokens },
   { rel: "stylesheet", href: articleContentStyles },
   { rel: "stylesheet", href: articleEditorLayoutStyles },
 ];

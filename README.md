@@ -91,9 +91,9 @@ Tras cambiar scopes en `shopify.app.toml`, reinstala la app en la tienda de desa
 
 ## Estilos del theme (Bulma)
 
-La vista previa y el editor cargan CSS compilado desde [`src/bulma/bulma.scss`](src/bulma/bulma.scss) (copia vendoreada del theme Shopify). El entry de la app es [`app/styles/theme-preview.scss`](app/styles/theme-preview.scss), incluido solo en la ruta del editor vía `links()`.
+La vista previa y el editor cargan Bulma desde el paquete [`b-style`](https://github.com/aavendano/b-style) (`npm` dependency Git). El entry Sass es [`app/styles/theme-preview.scss`](app/styles/theme-preview.scss); los colores de marca en el admin se ajustan con [`app/styles/theme-preview-tokens.css`](app/styles/theme-preview-tokens.css). Ambos se incluyen solo en la ruta del editor vía `links()`.
 
-**Sincronizar con el theme:** cuando cambies Sass en el theme, copia la carpeta `src/bulma/` del theme a este repo y vuelve a compilar (`npm run dev` o `npm run build`).
+**Sincronizar con el theme:** actualiza la dependencia `b-style` en `package.json` (rama, tag o commit) y ejecuta `npm install`, luego `npm run dev` o `npm run build`. Si cambian tokens de color en `theme.liquid`, revisa también `theme-preview-tokens.css`.
 
 El HTML publicado en Shopify **no incluye** `<link>` ni estilos embebidos; el theme de la tienda ya carga el mismo Bulma en el storefront.
 

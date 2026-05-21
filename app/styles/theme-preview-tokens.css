@@ -1,0 +1,25 @@
+/* PlayLoveToys brand tokens for admin preview (theme.liquid is not loaded in the app iframe). */
+:root {
+  --b-primary-h: 268deg;
+  --b-primary-s: 41%;
+  --b-primary-l: 33%;
+
+  --b-info-h: 190deg;
+  --b-info-s: 84%;
+  --b-info-l: 29%;
+
+  --b-link-h: 346deg;
+  --b-link-s: 89%;
+  --b-link-l: 61%;
+
+  --b-light-h: 0deg;
+  --b-light-s: 0%;
+  --b-light-l: 96%;
+
+  --b-dark-h: 108deg;
+  --b-dark-s: 6%;
+  --b-dark-l: 34%;
+
+  --b-background-l: 96%;
+  --b-scheme-main-l: 100%;
+}
