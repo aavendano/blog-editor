@@ -16,6 +16,7 @@ patchProseMirrorRenderSpec();
  *   onChange: (doc: unknown) => void;
  *   editorRef?: React.MutableRefObject<import("@blocknote/core").BlockNoteEditor | null>;
  *   onOpenPicker?: (kind: import("../../lib/blocknote/custom-block-catalog.js").EmbedKind) => void;
+ *   onInsertBlock?: (kind: import("../../lib/blocknote/custom-block-catalog.js").EmbedKind) => void;
  * }} props
  */
 export function BlogEditor({
@@ -23,12 +24,13 @@ export function BlogEditor({
   onChange,
   editorRef,
   onOpenPicker,
+  onInsertBlock,
 }) {
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  const pickerCallbacksRef = useRef({ onOpenPicker });
-  pickerCallbacksRef.current = { onOpenPicker };
+  const pickerCallbacksRef = useRef({ onOpenPicker, onInsertBlock });
+  pickerCallbacksRef.current = { onOpenPicker, onInsertBlock };
 
   const editor = useCreateBlockNote({
     schema: blocknoteSchema,
@@ -71,6 +73,7 @@ const BLOCK_TYPE_BY_KIND = {
   productRow: "productRow",
   article: "articleEmbed",
   collection: "collectionEmbed",
+  tableOfContents: "tableOfContents",
 };
 
 /**

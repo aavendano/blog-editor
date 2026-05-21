@@ -20,6 +20,10 @@ import {
   ArticleEmbedBlock,
   ArticleEmbedExternal,
 } from "../../components/editor/blocks/ArticleEmbedBlock";
+import {
+  TableOfContentsBlock,
+  TableOfContentsExternal,
+} from "../../components/editor/blocks/TableOfContentsBlock";
 
 const productEmbed = createReactBlockSpec(
   {
@@ -130,6 +134,21 @@ const collectionEmbed = createReactBlockSpec(
   },
 );
 
+const tableOfContents = createReactBlockSpec(
+  {
+    type: "tableOfContents",
+    propSchema: {
+      tocTitle: { default: "Tabla de contenido" },
+      tocItems: { default: "[]" },
+    },
+    content: "none",
+  },
+  {
+    render: TableOfContentsBlock,
+    toExternalHTML: TableOfContentsExternal,
+  },
+);
+
 export const blocknoteSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
@@ -138,5 +157,6 @@ export const blocknoteSchema = BlockNoteSchema.create({
     productRow: productRow(),
     articleEmbed: articleEmbed(),
     collectionEmbed: collectionEmbed(),
+    tableOfContents: tableOfContents(),
   },
 });

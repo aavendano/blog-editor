@@ -1,14 +1,15 @@
-/** @typedef {"product" | "productHorizontal" | "productRow" | "article" | "collection"} EmbedKind */
+/** @typedef {"product" | "productHorizontal" | "productRow" | "article" | "collection" | "tableOfContents"} EmbedKind */
 
 /**
  * @typedef {Object} CustomEmbedBlockDef
  * @property {EmbedKind} kind
  * @property {string} title
  * @property {string} description
- * @property {"searchProducts" | "searchCollections" | "searchArticles"} searchIntent
+ * @property {"searchProducts" | "searchCollections" | "searchArticles"} [searchIntent]
+ * @property {"picker" | "direct"} [insertMode]
  * @property {string} polarisIcon
  * @property {string[]} slashAliases
- * @property {"RiShoppingBag3Line" | "RiStackLine" | "RiArticleLine"} reactIcon
+ * @property {"RiShoppingBag3Line" | "RiStackLine" | "RiArticleLine" | "RiListOrdered"} reactIcon
  */
 
 /** @type {CustomEmbedBlockDef[]} */
@@ -58,6 +59,15 @@ export const CUSTOM_EMBED_BLOCKS = [
     slashAliases: ["collection", "coleccion", "colección"],
     reactIcon: "RiStackLine",
   },
+  {
+    kind: "tableOfContents",
+    title: "Tabla de contenido",
+    description: "Insertar índice automático de encabezados H2-H4",
+    insertMode: "direct",
+    polarisIcon: "list-bulleted",
+    slashAliases: ["toc", "tablaContenido", "indice", "indiceContenido"],
+    reactIcon: "RiListOrdered",
+  },
 ];
 
 /**
@@ -74,8 +84,17 @@ export function getBlockByKind(kind) {
  */
 export function getSearchIntentForKind(kind) {
   const block = getBlockByKind(kind);
-  if (!block) {
+  if (!block || !block.searchIntent) {
     throw new Error(`Unknown embed kind: ${kind}`);
   }
   return block.searchIntent;
+}
+
+/**
+ * @param {EmbedKind} kind
+ * @returns {boolean}
+ */
+export function isDirectInsertKind(kind) {
+  const block = getBlockByKind(kind);
+  return block?.insertMode === "direct";
 }
