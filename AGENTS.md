@@ -32,9 +32,17 @@ This serves the landing page and static routes. Shopify-authenticated routes (`/
 - **Build**: `npm run build` (production build via `react-router build`)
 - **Prisma migrations**: `npm run setup` (generates client + applies migrations)
 
+### Environment image (`.cursor/environment.json` + `.cursor/Dockerfile`)
+
+The Cloud Agent environment is built from `.cursor/Dockerfile`. It pre-installs:
+- Node.js 22, Docker + Docker Compose, fuse-overlayfs/iptables-legacy workarounds
+- `node_modules` (via `npm install` during image build)
+
+This means `npm install` on startup is near-instant (only reconciles deltas). The update script still runs `npm install`, `docker compose up -d`, and `npm run setup` to ensure DB and Prisma client are ready.
+
 ### Gotchas
 
-- Docker must be running before `docker compose up -d` and before `npm run setup` (Prisma needs the DB).
+- Docker daemon must be started (`sudo dockerd &`) before `docker compose up -d` if not already running.
 - The `.env` file must contain `DATABASE_URL=postgresql://blog_editor:blog_editor@localhost:5432/blog_editor` for Prisma to connect.
 - The Shopify CLI tunnel (`shopify app dev`) will not work without network access to Shopify and valid OAuth credentials. Use the direct Vite approach above for local-only development/testing.
-- Node.js version must satisfy `>=20.19 <22 || >=22.12` (current environment has v22.22.2 which is valid).
+- Node.js version must satisfy `>=20.19 <22 || >=22.12` (image provides v22.x which is valid).
