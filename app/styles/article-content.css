@@ -38,3 +38,24 @@
 .article-editor-content .product-row-embed.is-carousel .product-row-card {
   scroll-snap-align: start;
 }
+
+.article-editor-content .table-of-contents-embed {
+  margin: 0.5rem 0 1.25rem;
+}
+
+.article-editor-content .table-of-contents-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.article-editor-content .table-of-contents-item {
+  margin: 0.35rem 0;
+}
+
+.article-editor-content .table-of-contents-item.level-3 {
+  margin-left: 0.75rem;
+}
+
+.article-editor-content .table-of-contents-item.level-4 {
+  margin-left: 1.5rem;
+}

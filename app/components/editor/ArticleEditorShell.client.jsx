@@ -2,7 +2,9 @@ import { useCallback, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import {
   getSearchIntentForKind,
+  isDirectInsertKind,
 } from "../../lib/blocknote/custom-block-catalog";
+import { buildTableOfContentsProps } from "../../lib/blocknote/table-of-contents";
 import { excerptFromArticle } from "../../lib/shopify/article-excerpt.js";
 import { BlogEditor, insertEmbedBlock } from "./BlogEditor.client";
 import { CustomBlocksSidebar } from "./CustomBlocksSidebar";
@@ -113,6 +115,14 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
     setSelectedRowProducts([]);
   }, []);
 
+  const insertDirectBlock = useCallback((kind) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    if (kind === "tableOfContents") {
+      insertEmbedBlock(editor, kind, buildTableOfContentsProps(editor.document));
+    }
+  }, []);
+
   const insertSingleFromPicker = useCallback((item, kind) => {
     const editor = editorRef.current;
     if (!editor) return;
@@ -175,10 +185,15 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
           : null;
 
   const handleSelectBlock = useCallback((kind) => {
+    if (isDirectInsertKind(kind)) {
+      insertDirectBlock(kind);
+      clearPicker();
+      return;
+    }
     setPickerKind(kind);
     setSearchQuery("");
     setSelectedRowProducts([]);
-  }, []);
+  }, [clearPicker, insertDirectBlock]);
 
   const handleSearchQueryChange = useCallback(
     (query) => {
@@ -244,6 +259,7 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
           onChange={onChange}
           editorRef={editorRef}
           onOpenPicker={handleSelectBlock}
+          onInsertBlock={insertDirectBlock}
         />
       </main>
     </div>
