@@ -120,6 +120,13 @@ export function ArticleEditorShell({ initialDoc, onChange }) {
     if (!editor) return;
     if (kind === "tableOfContents") {
       insertEmbedBlock(editor, kind, buildTableOfContentsProps(editor.document));
+    } else if (kind === "highlightNotification") {
+      insertEmbedBlock(editor, kind, {
+        notificationVariant: "is-light",
+        notificationTitle: "",
+        notificationLinkUrl: "",
+        notificationLinkLabel: "",
+      });
     }
   }, []);
 
