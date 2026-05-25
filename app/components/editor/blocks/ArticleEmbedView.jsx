@@ -37,33 +37,42 @@ export function ArticleEmbedView({
   contentEditable = false,
 }) {
   return (
-    <article
-      className="b-media article-embed"
-      data-article-gid={gid}
-      contentEditable={contentEditable}
-    >
-      {imageUrl ? (
-        <figure className="b-media-left">
-          <div className="b-image b-is-150x150">
-            <img src={imageUrl} alt={title} />
+    <section className="b-section">
+      <div className="b-box">
+        {imageUrl ? (
+          <div className="b-is-pulled-left">
+            <div className="b-mr-4 b-mb-4">
+              <figure className="b-image b-is-150x150">
+                <img
+                  src={imageUrl}
+                  alt={title}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </div>
           </div>
-        </figure>
-      ) : null}
-      <div className="b-media-content">
-        <div className="b-content">
+        ) : null}
+        <div className="b-block">
           <h3 className="b-title">{title}</h3>
           {blogTitle ? <h4 className="b-subtitle">{blogTitle}</h4> : null}
-          {excerpt ? <p className="b-text b-is-5">{excerpt}</p> : null}
+        </div>
+        <div className="b-block">
+          <div className="b-content">
+            {excerpt ? <p>{excerpt}</p> : null}
+          </div>
         </div>
         {blogHandle && handle ? (
-          <a
-            href={`/blogs/${blogHandle}/articles/${handle}`}
-            className="b-button b-is-primary b-is-small"
-          >
-            Learn more
-          </a>
+          <div className="b-block b-is-flex b-is-justify-content-flex-end">
+            <a
+              href={`/blogs/${blogHandle}/articles/${handle}`}
+              className="b-button b-is-link b-is-small"
+            >
+              Learn more
+            </a>
+          </div>
         ) : null}
       </div>
-    </article>
+    </section>
   );
 }

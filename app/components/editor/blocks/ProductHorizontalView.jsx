@@ -34,35 +34,44 @@ export function ProductHorizontalView({
 }) {
   return (
     <section className="b-section">
-      <article
-        className="b-card b-card-horizontal product-horizontal-embed"
-        data-product-gid={gid}
-        contentEditable={contentEditable}
-      >
-        {imageUrl ? (
-          <div className="b-card-image">
-            <figure className="b-image b-is-4by3">
-              <img src={imageUrl} alt={title} loading="lazy" decoding="async" />
-            </figure>
-          </div>
-        ) : null}
-        <div className="b-card-content">
-          <p className="b-title b-is-5">{title}</p>
-          {priceLabel ? <p className="b-subtitle b-is-6">{priceLabel}</p> : null}
-        </div>
-        {handle ? (
-          <footer className="b-card-footer">
-            <div className="b-card-footer-item">
-              <a
-                href={`/products/${handle}`}
-                className="b-button b-is-link b-is-small"
-              >
-                View product
-              </a>
+      <div className="b-box">
+        <article
+          className="b-media product-horizontal-embed"
+          data-product-gid={gid}
+          contentEditable={contentEditable}
+        >
+          {imageUrl ? (
+            <div className="b-media-left">
+              <figure className="b-image b-is-150x150">
+                <img
+                  src={imageUrl}
+                  alt={title}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
             </div>
-          </footer>
-        ) : null}
-      </article>
+          ) : null}
+          <div className="b-media-content">
+            <div className="b-block">
+              <p className="b-title b-is-5">{title}</p>
+              {priceLabel ? (
+                <p className="b-subtitle b-is-5">{priceLabel}</p>
+              ) : null}
+            </div>
+            <div className="b-block">
+              {handle ? (
+                <a
+                  href={`/products/${handle}`}
+                  className="b-button b-is-link b-is-fullwidth"
+                >
+                  View product
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </article>
+      </div>
     </section>
   );
 }
