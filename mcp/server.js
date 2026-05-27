@@ -11,7 +11,6 @@ import {
   updateArticle,
 } from "../app/lib/shopify/articles.server.js";
 import { listBlogs, getBlogArticles } from "../app/lib/shopify/blogs.server.js";
-import { exportArticleHtml } from "../app/lib/blocknote/export-html.server.js";
 import { createAdminApiContext, resolveShopifyCredentials } from "./shopify-admin-client.js";
 
 const server = new McpServer({
@@ -41,6 +40,74 @@ function toToolResult(payload) {
   };
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function extractInlineText(value) {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value.map(extractInlineText).join("");
+  if (!value || typeof value !== "object") return "";
+
+  if ("text" in value && typeof value.text === "string") {
+    return value.text;
+  }
+
+  if ("content" in value) {
+    return extractInlineText(value.content);
+  }
+
+  return "";
+}
+
+function blockToHtml(block) {
+  if (!block || typeof block !== "object") return "";
+
+  const type = String(block.type || "paragraph");
+  const props = block.props && typeof block.props === "object" ? block.props : {};
+  const text = escapeHtml(extractInlineText(block.content || ""));
+  const content = text || "&nbsp;";
+
+  if (type === "heading") {
+    const level = Number(props.level) || 1;
+    const safeLevel = Math.max(1, Math.min(6, level));
+    return `<h${safeLevel}>${content}</h${safeLevel}>`;
+  }
+
+  if (type === "bulletListItem") {
+    return `<ul><li>${content}</li></ul>`;
+  }
+
+  if (type === "numberedListItem") {
+    return `<ol><li>${content}</li></ol>`;
+  }
+
+  if (type === "quote") {
+    return `<blockquote>${content}</blockquote>`;
+  }
+
+  if (type === "codeBlock") {
+    return `<pre><code>${content}</code></pre>`;
+  }
+
+  if (type === "tableOfContents") {
+    return `<h3>Tabla de contenido</h3>`;
+  }
+
+  return `<p>${content}</p>`;
+}
+
+function blocknoteDocToHtml(blocks) {
+  if (!Array.isArray(blocks)) return "<p></p>";
+  const html = blocks.map(blockToHtml).filter(Boolean).join("\n");
+  return html || "<p></p>";
+}
+
 function parseBlocknoteDocInput(rawValue) {
   if (rawValue === undefined) return null;
 
@@ -62,14 +129,14 @@ function parseBlocknoteDocInput(rawValue) {
   );
 }
 
-async function resolveBodyHtml(admin, bodyHtml, blocknoteDoc) {
+async function resolveBodyHtml(bodyHtml, blocknoteDoc) {
   if (typeof bodyHtml === "string" && bodyHtml.trim()) {
     return bodyHtml;
   }
 
   const parsedDoc = parseBlocknoteDocInput(blocknoteDoc);
   if (parsedDoc) {
-    return exportArticleHtml(parsedDoc, admin);
+    return blocknoteDocToHtml(parsedDoc);
   }
 
   return null;
@@ -163,7 +230,7 @@ server.registerTool(
   },
   async (input) => {
     const { admin, credentials } = createAdminFromInput(input);
-    const bodyHtml = await resolveBodyHtml(admin, input.bodyHtml, input.blocknoteDoc);
+    const bodyHtml = await resolveBodyHtml(input.bodyHtml, input.blocknoteDoc);
 
     if (!bodyHtml) {
       throw new Error("Provide either `bodyHtml` or `blocknoteDoc` to create an article.");
@@ -216,7 +283,7 @@ server.registerTool(
     }
 
     const bodyHtml =
-      (await resolveBodyHtml(admin, input.bodyHtml, input.blocknoteDoc)) || current.body || "";
+      (await resolveBodyHtml(input.bodyHtml, input.blocknoteDoc)) || current.body || "";
     const title = input.title || current.title || "Untitled article";
 
     const article = await updateArticle(admin, {
