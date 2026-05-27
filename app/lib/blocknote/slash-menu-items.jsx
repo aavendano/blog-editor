@@ -1,5 +1,6 @@
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import { getDefaultReactSlashMenuItems } from "@blocknote/react";
+import { getAISlashMenuItems } from "@blocknote/xl-ai";
 import {
   RiAlarmWarningLine,
   RiArticleLine,
@@ -48,4 +49,17 @@ export function getArticleSlashMenuItems(editor, callbacks, query) {
     [...getDefaultReactSlashMenuItems(editor), ...shopifyItems],
     query,
   );
+}
+
+/**
+ * @param {import("@blocknote/core").BlockNoteEditor} editor
+ * @param {{
+ *   onOpenPicker?: (kind: import("./custom-block-catalog.js").EmbedKind) => void;
+ *   onInsertBlock?: (kind: import("./custom-block-catalog.js").EmbedKind) => void;
+ * }} callbacks
+ * @param {string} query
+ */
+export function getArticleSlashMenuItemsWithAI(editor, callbacks, query) {
+  const items = getArticleSlashMenuItems(editor, callbacks, "");
+  return filterSuggestionItems([...items, ...getAISlashMenuItems(editor)], query);
 }

@@ -64,6 +64,8 @@ export default defineConfig({
   },
   resolve: {
     dedupe: [
+      "@blocknote/core",
+      "@blocknote/react",
       "prosemirror-model",
       "prosemirror-state",
       "prosemirror-view",
@@ -71,9 +73,11 @@ export default defineConfig({
     ],
   },
   ssr: {
-    noExternal: ["@blocknote/server-util"],
+    noExternal: ["@blocknote/server-util", "@blocknote/xl-ai"],
     resolve: {
       dedupe: [
+        "@blocknote/core",
+        "@blocknote/react",
         "prosemirror-model",
         "prosemirror-state",
         "prosemirror-view",

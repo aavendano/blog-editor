@@ -1,17 +1,65 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { DefaultChatTransport } from "ai";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
+import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/ariakit";
 import "@blocknote/ariakit/style.css";
-import { useCreateBlockNote, SuggestionMenuController } from "@blocknote/react";
+import {
+  useCreateBlockNote,
+  SuggestionMenuController,
+  FormattingToolbar,
+  FormattingToolbarController,
+  getFormattingToolbarItems,
+} from "@blocknote/react";
+import {
+  AIExtension,
+  AIMenu,
+  AIMenuController,
+  AIToolbarButton,
+  getDefaultAIMenuItems,
+} from "@blocknote/xl-ai";
+import { en as aiEn } from "@blocknote/xl-ai/locales";
+import "@blocknote/xl-ai/style.css";
 import { blocknoteSchema } from "../../lib/blocknote/schema";
-import { getArticleSlashMenuItems } from "../../lib/blocknote/slash-menu-items";
+import { getArticleSlashMenuItemsWithAI } from "../../lib/blocknote/slash-menu-items";
 import { patchProseMirrorRenderSpec } from "../../lib/blocknote/patch-render-spec";
 import { sanitizeInitialDoc } from "../../lib/blocknote/sanitize-initial-doc";
+import {
+  expandSectionCommand,
+  rewriteToneCommand,
+  summarizeSelectionCommand,
+} from "../../lib/blocknote/ai-menu-items";
 
 patchProseMirrorRenderSpec();
 
 const SCHEMA_BLOCK_TYPES = Object.keys(blocknoteSchema.blockSpecs);
+const AI_ENDPOINT = "/api/chat";
+
+const FormattingToolbarWithAI = () => (
+  <FormattingToolbar>
+    {getFormattingToolbarItems()}
+    <AIToolbarButton />
+  </FormattingToolbar>
+);
+
+function CustomAIMenu() {
+  return (
+    <AIMenu
+      items={(editor, aiResponseStatus) => {
+        if (aiResponseStatus !== "user-input") {
+          return getDefaultAIMenuItems(editor, aiResponseStatus);
+        }
+
+        const commands = editor.getSelection()
+          ? [rewriteToneCommand(editor), summarizeSelectionCommand(editor)]
+          : [expandSectionCommand(editor)];
+
+        return [...getDefaultAIMenuItems(editor, aiResponseStatus), ...commands];
+      }}
+    />
+  );
+}
 
 /**
  * @param {{
@@ -42,6 +90,17 @@ export function BlogEditor({
 
   const editor = useCreateBlockNote({
     schema: blocknoteSchema,
+    dictionary: {
+      ...en,
+      ai: aiEn,
+    },
+    extensions: [
+      AIExtension({
+        transport: new DefaultChatTransport({
+          api: AI_ENDPOINT,
+        }),
+      }),
+    ],
     initialContent: sanitizedDoc.blocks,
   });
 
@@ -60,12 +119,19 @@ export function BlogEditor({
 
   const getSlashMenuItems = useCallback(
     async (query) =>
-      getArticleSlashMenuItems(editor, pickerCallbacksRef.current, query),
+      getArticleSlashMenuItemsWithAI(editor, pickerCallbacksRef.current, query),
     [editor],
   );
 
   return (
-    <BlockNoteView editor={editor} slashMenu={false} theme="light">
+    <BlockNoteView
+      editor={editor}
+      formattingToolbar={false}
+      slashMenu={false}
+      theme="light"
+    >
+      <AIMenuController aiMenu={CustomAIMenu} />
+      <FormattingToolbarController formattingToolbar={FormattingToolbarWithAI} />
       <SuggestionMenuController
         triggerCharacter="/"
         getItems={getSlashMenuItems}

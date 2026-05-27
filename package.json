@@ -24,10 +24,12 @@
     "node": ">=20.19 <22 || >=22.12"
   },
   "dependencies": {
-    "@blocknote/ariakit": "^0.51.1",
-    "@blocknote/core": "^0.51.1",
-    "@blocknote/react": "^0.51.1",
-    "@blocknote/server-util": "^0.51.1",
+    "@ai-sdk/google": "^3.0.79",
+    "@blocknote/ariakit": "0.51.3",
+    "@blocknote/core": "0.51.3",
+    "@blocknote/react": "0.51.3",
+    "@blocknote/server-util": "0.51.3",
+    "@blocknote/xl-ai": "0.51.3",
     "@prisma/client": "^6.16.3",
     "@react-router/dev": "^7.12.0",
     "@react-router/fs-routes": "^7.12.0",
@@ -36,6 +38,7 @@
     "@shopify/app-bridge-react": "^4.2.4",
     "@shopify/shopify-app-react-router": "^1.1.0",
     "@shopify/shopify-app-session-storage-prisma": "^9.0.0",
+    "ai": "^6.0.191",
     "b-style": "github:aavendano/b-style#main",
     "isbot": "^5.1.31",
     "prisma": "^6.16.3",
@@ -72,7 +75,9 @@
     "@shopify/plugin-cloudflare"
   ],
   "overrides": {
-    "p-map": "^4.0.0"
+    "p-map": "^4.0.0",
+    "@blocknote/core": "0.51.3",
+    "@blocknote/react": "0.51.3"
   },
   "author": "alejandro"
 }

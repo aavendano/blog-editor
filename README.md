@@ -88,6 +88,16 @@ Tras cambiar scopes en `shopify.app.toml`, reinstala la app en la tienda de desa
 | `DATABASE_URL` | PostgreSQL |
 | `SCOPES` | Debe incluir `read_content,write_content,read_products` |
 | `ALLOWED_EMAILS` | Opcional: emails permitidos separados por coma |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | API key para BlockNote AI con Gemini (solo servidor) |
+| `GEMINI_MODEL` | Opcional, default `gemini-2.0-flash` |
+
+## BlockNote AI
+
+La integración AI del editor usa `@blocknote/xl-ai` y un endpoint server-side en `/api/chat`.
+
+- UI: comando `/ai`, menú AI contextual y botón AI en toolbar de selección.
+- Backend: streaming con AI SDK + Gemini, con herramientas de BlockNote para editar bloques en vivo.
+- Seguridad: la API key queda en servidor (`GOOGLE_GENERATIVE_AI_API_KEY`), no se expone al cliente.
 
 ## Estilos del theme (Bulma)
 

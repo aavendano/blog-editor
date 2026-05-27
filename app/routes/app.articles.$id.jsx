@@ -196,6 +196,10 @@ function EditorPage() {
   );
 
   useEffect(() => {
+    setTitle(draft.title);
+  }, [draft.title]);
+
+  useEffect(() => {
     if (fetcher.data?.intent === "publish" && fetcher.data?.ok) {
       shopify.toast.show("Artículo publicado en Shopify");
       revalidator.revalidate();
@@ -254,14 +258,13 @@ function EditorPage() {
         <s-stack direction="block" gap="base">
           <s-text-field
             label="Título"
-              value={title}
-              onChange={(e) => {
-                const next = e.target.value;
-                setTitle(next);
-                scheduleSave(doc, next);
-              }}
-             
-            ></s-text-field>
+            value={title}
+            onChange={(e) => {
+              const next = e.currentTarget.value;
+              setTitle(next);
+              scheduleSave(doc, next);
+            }}
+          ></s-text-field>
           <s-paragraph>
             Blog: {blogTitle}
             {draft.shopifyArticleGid ? (

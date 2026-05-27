@@ -1,4 +1,5 @@
 import { Form, redirect, useLoaderData } from "react-router";
+import { useState } from "react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticateAdmin } from "../lib/shopify-auth.server";
 import { assertAllowedEmail } from "../lib/auth.server";
@@ -38,6 +39,7 @@ export const action = async ({ request }) => {
 
 export default function NewArticle() {
   const { blogs } = useLoaderData();
+  const [title, setTitle] = useState("Sin título");
 
   return (
     <s-page heading="Nuevo artículo" inlineSize="large">
@@ -46,10 +48,12 @@ export default function NewArticle() {
           <s-stack direction="block" gap="base" padding="base">
 
           <s-text-field
-  label="Título"
-  value="Sin título"
-  placeholder="Título del artículo"
-></s-text-field>
+            name="title"
+            label="Título"
+            value={title}
+            placeholder="Título del artículo"
+            onChange={(e) => setTitle(e.currentTarget.value)}
+          ></s-text-field>
 
 
 <s-choice-list label="Blog" name="blogGid" required>
