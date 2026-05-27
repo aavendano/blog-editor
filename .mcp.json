@@ -1,5 +1,14 @@
 {
   "mcpServers": {
+    "shopify-blog-editor": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["mcp/server.js"],
+      "env": {
+        "SHOPIFY_MCP_SHOP": "your-store.myshopify.com",
+        "SHOPIFY_MCP_ACCESS_TOKEN": "shpat_xxx"
+      }
+    },
     "shopify-dev-mcp": {
       "type": "stdio",
       "command": "npx",

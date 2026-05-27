@@ -2,6 +2,14 @@
   "name": "shopify-dev-mcp",
   "version": "1.0.0",
   "mcpServers": {
+    "shopify-blog-editor": {
+      "command": "node",
+      "args": ["mcp/server.js"],
+      "env": {
+        "SHOPIFY_MCP_SHOP": "your-store.myshopify.com",
+        "SHOPIFY_MCP_ACCESS_TOKEN": "shpat_xxx"
+      }
+    },
     "shopify-dev-mcp": {
       "command": "npx",
       "args": ["-y", "@shopify/dev-mcp@latest"]

@@ -89,6 +89,47 @@ Tras cambiar scopes en `shopify.app.toml`, reinstala la app en la tienda de desa
 | `SCOPES` | Debe incluir `read_content,write_content,read_products` |
 | `ALLOWED_EMAILS` | Opcional: emails permitidos separados por coma |
 
+## MCP server para artículos de blog
+
+Se incluye un servidor MCP local en `mcp/server.js` para que un LLM pueda crear/editar artículos de blog en Shopify por tools.
+
+### Ejecutar
+
+```shell
+npm run mcp:blog-editor
+```
+
+### Autenticación por access token
+
+Configura estas variables (globales o en la config del cliente MCP):
+
+```shell
+SHOPIFY_MCP_SHOP=tu-tienda.myshopify.com
+SHOPIFY_MCP_ACCESS_TOKEN=shpat_xxx
+# opcional, por defecto 2025-10
+SHOPIFY_MCP_API_VERSION=2025-10
+```
+
+También puedes enviar `shop` y `accessToken` en cada llamada de tool.
+
+### Tools disponibles
+
+- `list_blogs`
+- `list_blog_articles`
+- `search_blog_articles`
+- `create_blog_article` (`bodyHtml` o `blocknoteDoc`)
+- `update_blog_article` (`bodyHtml` o `blocknoteDoc`)
+
+### Compatibilidad de clientes MCP
+
+Se añadieron ejemplos de registro en:
+
+- `.mcp.json`
+- `.cursor/mcp.json`
+- `.gemini/extensions/shopify-dev-mcp/gemini-extension.json`
+
+Cualquier cliente MCP compatible con transporte `stdio` (Cursor, ChatGPT, Gemini, etc.) puede conectar ejecutando `node mcp/server.js`.
+
 ## Estilos del theme (Bulma)
 
 La vista previa y el editor cargan CSS compilado desde [`src/bulma/bulma.scss`](src/bulma/bulma.scss) (copia vendoreada del theme Shopify). El entry de la app es [`app/styles/theme-preview.scss`](app/styles/theme-preview.scss), incluido solo en la ruta del editor vía `links()`.
