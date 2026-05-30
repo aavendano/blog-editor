@@ -30,6 +30,7 @@
     "@blocknote/react": "0.51.3",
     "@blocknote/server-util": "0.51.3",
     "@blocknote/xl-ai": "0.51.3",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@prisma/client": "^6.16.3",
     "@react-router/dev": "^7.12.0",
     "@react-router/fs-routes": "^7.12.0",
@@ -45,7 +46,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.12.0",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@shopify/api-codegen-preset": "^1.2.0",

@@ -1,3 +1,5 @@
+import { throwIfGraphqlErrors } from "./graphql-errors.server";
+
 /**
  * @param {import("@shopify/shopify-app-react-router/server").AdminApiContext} admin
  */
@@ -16,8 +18,9 @@ export async function listBlogs(admin, first = 25) {
     { variables: { first } },
   );
   const { data, errors } = await response.json();
-  if (errors?.length) {
-    throw new Error(errors.map((e) => e.message).join(", "));
+  throwIfGraphqlErrors(errors, "listBlogs");
+  if (!data?.blogs?.nodes) {
+    throw new Error("listBlogs: GraphQL response missing blogs data");
   }
   return data.blogs.nodes;
 }
@@ -46,8 +49,9 @@ export async function getBlogArticles(admin, blogId, first = 50) {
     { variables: { id: blogId, first } },
   );
   const { data, errors } = await response.json();
-  if (errors?.length) {
-    throw new Error(errors.map((e) => e.message).join(", "));
+  throwIfGraphqlErrors(errors, "getBlogArticles");
+  if (!data?.blog) {
+    throw new Error("getBlogArticles: GraphQL response missing blog data");
   }
   return data.blog;
 }

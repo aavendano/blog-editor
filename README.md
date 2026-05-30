@@ -90,6 +90,47 @@ Tras cambiar scopes en `shopify.app.toml`, reinstala la app en la tienda de desa
 | `ALLOWED_EMAILS` | Opcional: emails permitidos separados por coma |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | API key para BlockNote AI con Gemini (solo servidor) |
 | `GEMINI_MODEL` | Opcional, default `gemini-2.0-flash` |
+| `BLOG_EDITOR_MCP_TOKEN` | Token Bearer para el endpoint MCP (`/mcp`) usado por agentes AI |
+
+## MCP (agentes AI)
+
+Blog-Editor expone un servidor [MCP](https://modelcontextprotocol.io/) integrado en la misma app (Streamable HTTP). Sirve para que agentes AI creen y editen borradores en `ArticleDraft` sin publicar en Shopify.
+
+- **URL:** `{SHOPIFY_APP_URL}/mcp` (métodos `GET`, `POST`, `DELETE` del transporte MCP)
+- **Auth del agente:** header `Authorization: Bearer <BLOG_EDITOR_MCP_TOKEN>` (no es OAuth de Shopify)
+- **Shopify:** MCP usa la **misma sesión offline** que la app embebida (`unauthenticated.admin` + token en PostgreSQL). La app debe estar instalada en la tienda; no hay configuración Shopify adicional solo para MCP.
+- **Contenido:** solo Markdown en el campo `markdown` (no HTML, BlockNote JSON ni `contentFormat`)
+- **Estado:** los artículos se guardan siempre como `draft`; la publicación es solo desde la UI de la app
+- **`shop` opcional:** si omites `shop`, se usa `DEV_SHOP_DOMAIN` o la única tienda con sesión instalada (útil en dev con una sola tienda)
+
+**Flujo recomendado**
+
+1. `list_shop_blogs` — la app consulta Shopify y devuelve blogs con `shopifyBlogGid`
+2. `create_article_draft` — crear borrador con el GID elegido
+3. `edit_article_draft` — actualizar borrador existente
+
+**Tools disponibles**
+
+| Tool | Descripción |
+|------|-------------|
+| `list_shop_blogs` | Lista blogs (`shop?`) con `shopifyBlogGid`, `title`, `handle` |
+| `create_article_draft` | Crea borrador (`shop?`, `shopifyBlogGid`, `title`, `markdown`, `handle?`) |
+| `edit_article_draft` | Actualiza borrador (`articleDraftId`, `shop?`, campos opcionales) |
+
+**Ejemplo (Cursor `mcp.json`)**
+
+```json
+{
+  "mcpServers": {
+    "blog-editor": {
+      "url": "https://tu-app.example.com/mcp",
+      "headers": {
+        "Authorization": "Bearer TU_TOKEN_SECRETO"
+      }
+    }
+  }
+}
+```
 
 ## BlockNote AI
 
